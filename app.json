@@ -2,7 +2,7 @@
   "name": "Freezer-MD",
   "description": "Freezer multi-device WhatsApp bot (Baileys)",
   "keywords": ["whatsapp", "bot", "baileys", "freezer", "nodejs"],
-  "repository": "https://github.com/freezermd/Freezer-MD",
+  "repository": "https://github.com/Freezerfred/Freezer-MD-.git",
   "logo": "https://i.ibb.co/WNv1hWXT/file-000000001f5c81f4a38f20223ae695d1.png",
   "success_url": "/",
   "stack": "heroku-24",
