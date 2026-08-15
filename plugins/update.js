@@ -5,8 +5,8 @@ const crypto = require('crypto');
 const { execSync, spawn } = require('child_process');
 
 // ── GitHub configuration ──────────────────────────────────────────────────
-const repoOwner = 'freezermd';
-const repoName = 'Freezer-MD';
+const repoOwner = 'Freezerfred';
+const repoName = 'Freezer-MD-';
 const branch = 'main';
 
 // ── Paths ────────────────────────────────────────────────────────────────
