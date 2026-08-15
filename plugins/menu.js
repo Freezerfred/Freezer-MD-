@@ -29,7 +29,7 @@ cmd({
         timeZone: 'Africa/Accra'
     });
     
-    const botOwner = global.ownerName  || 'FREEZER';
+    const botOwner = global.ownerName || 'FREEZER MD';
     
     const user = m.pushName || m.sender?.split('@')[0] || 'User';
 
@@ -41,18 +41,36 @@ cmd({
 
     const ramStr = `${(process.memoryUsage().rss / 1024 / 1024).toFixed(2)}MB`;
 
-    // Box-drawing pieces + accent emoji (swap CAP to change the corner look everywhere at once)
-    const CAP = '💠';
-    const TOP = `╭──═════════════${CAP}`;
-    const MID = `╠──═════════════${CAP}`;
-    const BOT = `╰──═════════════${CAP}`;
+    // ❄️ FREEZER MD MENU STYLE
+    const CAP = '❄️';
+    const TOP = `╭━━━『 ${CAP} 』`;
+    const MID = `┃━━━━━━━━━━━━━━━━━━`;
+    const BOT = `╰━━━━━━━━━━━━━━━━━━`;
 
     // Auto-build the command list from whatever plugins are actually loaded,
     // so new plugins show up here automatically without editing this file.
-    const CATEGORY_ORDER = ['General', 'Downloaders', 'Tools', 'AI', 'Fun', 'Group', 'Status', 'Channel', 'Admin'];
+    const CATEGORY_ORDER = [
+        'General',
+        'Downloaders',
+        'Tools',
+        'AI',
+        'Fun',
+        'Group',
+        'Status',
+        'Channel',
+        'Admin'
+    ];
+
     const CATEGORY_ICONS = {
-        General: '📜', Downloaders: '💼', Tools: '🛠️', AI: '🧠', Fun: '🎉',
-        Group: '👥', Status: '📡', Channel: '📢', Admin: '👑'
+        General: '⚡',
+        Downloaders: '📥',
+        Tools: '🔧',
+        AI: '🤖',
+        Fun: '🎮',
+        Group: '👥',
+        Status: '📡',
+        Channel: '📢',
+        Admin: '👑'
     };
 
     const grouped = {};
@@ -66,48 +84,69 @@ cmd({
         for (const plugin of global.plugins.values()) {
             if (!plugin || !plugin.name) continue;
             if (plugin.hidden) continue;
-            if (seen.has(plugin.name)) continue; // plugin objects are indexed by name + every alias
+            if (seen.has(plugin.name)) continue;
+
             seen.add(plugin.name);
 
             const category = plugin.category || 'General';
+
             if (!grouped[category]) grouped[category] = [];
+
             grouped[category].push(`${prefix}${plugin.name}`);
         }
     }
 
     const allCategories = [
         ...CATEGORY_ORDER.filter(c => grouped[c]),
-        ...Object.keys(grouped).filter(c => !CATEGORY_ORDER.includes(c))
+        ...Object.keys(grouped).filter(
+            c => !CATEGORY_ORDER.includes(c)
+        )
     ];
 
     const commandSections = allCategories.map(category => {
         const icon = CATEGORY_ICONS[category] || '📂';
-        const lines = grouped[category].map(l => `║ ◇ ${l}`).join('\n');
-        return `${TOP}\n║ ${icon} *${category.toUpperCase()}*\n${MID}\n║\n${lines}\n║\n${BOT}`;
+
+        const lines = grouped[category]
+            .map(l => `┃ ❄️ ${l}`)
+            .join('\n');
+
+        return `${TOP}
+┃ ${icon} *${category.toUpperCase()}*
+${MID}
+┃
+${lines}
+┃
+${BOT}`;
     }).join('\n\n');
 
     const menuText = `
 ${TOP}
-║ ✨ *FREEZER-MD BOT* ✨
+┃
+┃       ❄️ *FREEZER MD* ❄️
+┃
+┃  *ADVANCED WHATSAPP BOT*
 ${MID}
-║
-║ 👤 *OWNER:* ${botOwner}
-║ 🙋 *USER:* ${user}
-║ 🚀 *PLUGINS:* ${totalPlugins}
-║ ⏳ *UPTIME:* ${uptimeStr}
-║ 📆 *DATE:* ${date}
-║ 📊 *RAM:* ${ramStr}
-║ 🔧 *PREFIX:* ${prefix}
-║
+┃
+┃ 👑 *OWNER:* ${botOwner}
+┃ 👤 *USER:* ${user}
+┃ ⚡ *PLUGINS:* ${totalPlugins}
+┃ 🚀 *UPTIME:* ${uptimeStr}
+┃ 📅 *DATE:* ${date}
+┃ 💾 *RAM:* ${ramStr}
+┃ ⚙️ *PREFIX:* ${prefix}
+┃
 ${BOT}
 
 ${commandSections}
 
-© Freezer-MD
+❄️ *FREEZER MD*
+> *POWERED BY ADVANCED TECHNOLOGY*
 `.trim();
 
     try {    
-        if (!global.menuImage) throw new Error('global.menuImage is not set');
+        if (!global.menuImage) {
+            throw new Error('global.menuImage is not set');
+        }
 
         const imageBuffer = (await axios.get(global.menuImage, {
             responseType: 'arraybuffer',
@@ -121,18 +160,25 @@ ${commandSections}
                 isForwarded: true,
                 forwardedNewsletterMessageInfo: {
                     newsletterJid: '120363426778975572@newsletter',
-                    newsletterName: '🥶 Freezer-MD 🥶',
+                    newsletterName: '❄️ FREEZER MD ❄️',
                     serverMessageId: 1
                 }
             }
         });
         
     } catch (err) {    
-        console.error('Menu image error, falling back to text:', err.message);
+        console.error(
+            'Menu image error, falling back to text:',
+            err.message
+        );
+
         try {
             await m.reply(menuText);
         } catch (err2) {
-            console.error('Menu fallback error:', err2.message);
+            console.error(
+                'Menu fallback error:',
+                err2.message
+            );
         }
     }    
 });
