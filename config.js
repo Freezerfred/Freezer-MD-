@@ -13,5 +13,5 @@ global.autoLike = false;      // react to statuses with a random emoji
 global.statusReactThrottleMs = 5000; // min ms between status reactions (prevents burst-spam)
 global.statusReactDelayMs = 2000;    // pause after reacting before handling the next status
 global.presenceMode = 'none'; // 'none' | 'typing' | 'recording' | 'online'
-global.updateZipUrl = 'https://github.com/freezermd/Freezer-MD/archive/refs/heads/main.zip';
+global.updateZipUrl = 'https://github.com/Freezerfred/Freezer-MD-.git/archive/refs/heads/main.zip';
 global.antidelete = 'false';  // 'false' | 'inchat' | 'indm' — toggle at runtime with .antidelete
