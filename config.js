@@ -3,7 +3,7 @@ global.sessionid = process.env.SESSION_ID || '';
 global.BOT_PREFIX = '.';
 global.owners = ['254142946338@lid', '254785188927@lid'];
 global.dev = ['254142946338@s.whatsapp.net', '254785188927@s.whatsapp.net', '254142946338@lid', '254785188927@lid'];
-global.menuImage = 'https://i.ibb.co/JRJKvBrv/file-00000000689c8243bee3d05752b799c8.png';
+global.menuImage = 'https://i.ibb.co/fY77xvV1/IMG-20260814-WA0000-1.jpg';
 global.ownerName = '🥶 Freezer 🥶';
 
 // Auto features (toggle at runtime with the .autofeature command)
