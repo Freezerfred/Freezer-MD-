@@ -1,61 +1,140 @@
+'use strict';
+
 const { cmd } = require('../arslan');
 
 cmd({
-    pattern: "ping",
+    pattern: 'ping',
     name: 'ping',
     category: 'General',
+    description: 'Check Freezer-MD response speed and connection latency',
     aliases: ['pong', 'latency'],
-    description: 'Check bot response speed and connection health',
+    tags: ['main', 'system'],
+    command: /^\.?(ping|pong|latency)$/i,
     filename: __filename
-}, async (sock, m, args) => {
-        // --- 1. Start timer and send loading message ---
-        const start = Date.now();
-        const loadingMsg = await m.reply('🏓 *Pinging...*');
+}, async (sock, m) => {
 
-        // --- 2. Get WebSocket ping (if available) ---
-        let wsPing = 'N/A';
-        if (sock.ws && typeof sock.ws.ping === 'number') {
-            wsPing = sock.ws.ping + ' ms';
-        } else if (sock.ws && sock.ws._socket && sock.ws._socket._pingRTT) {
-            // Some Baileys versions store RTT differently
-            wsPing = sock.ws._socket._pingRTT + ' ms';
+    const startedAt = Date.now();
+
+    try {
+        // ─────────────────────────────────────
+        // FREEZER-MD CONFIG
+        // ─────────────────────────────────────
+
+        const botName = '❄️ FREEZER-MD ❄️';
+        const prefix = global.BOT_PREFIX || '.';
+
+        // ─────────────────────────────────────
+        // BASIC SAFETY CHECK
+        // ─────────────────────────────────────
+
+        if (!sock) {
+            throw new Error('WhatsApp connection is unavailable.');
         }
 
-        // --- 3. Calculate bot latency ---
-        const latency = Date.now() - start;
+        if (!m) {
+            throw new Error('Message context is unavailable.');
+        }
 
-        // --- 4. Calculate uptime (in a human-readable format) ---
-        const uptimeSeconds = process.uptime();
-        const days = Math.floor(uptimeSeconds / 86400);
-        const hours = Math.floor((uptimeSeconds % 86400) / 3600);
-        const minutes = Math.floor((uptimeSeconds % 3600) / 60);
-        const seconds = Math.floor(uptimeSeconds % 60);
-        let uptimeStr = '';
-        if (days) uptimeStr += `${days}d `;
-        if (hours) uptimeStr += `${hours}h `;
-        if (minutes) uptimeStr += `${minutes}m `;
-        uptimeStr += `${seconds}s`;
+        // ─────────────────────────────────────
+        // MESSAGE RESPONSE LATENCY
+        // ─────────────────────────────────────
 
-        // --- 5. Build the response message ---
-        const statusEmoji = latency < 200 ? '🟢' : latency < 500 ? '🟡' : '🔴';
-        const info = 
-`┌─── *🏓 PONG !* ───┐
-│
-│  ${statusEmoji} *Bot Latency* : ${latency} ms
-│  📡 *WebSocket Ping* : ${wsPing}
-│  ⏱️ *Uptime*        : ${uptimeStr}
-│
-└─── *Freezer-MD* ───┘`;
+        const responseTime = Date.now() - startedAt;
 
-        // --- 6. Edit the loading message with the result ---
+        // ─────────────────────────────────────
+        // CONNECTION TEST
+        // ─────────────────────────────────────
+
+        let connection = 'ONLINE';
+
         try {
-            await sock.sendMessage(m.from, {
-                text: info,
-                edit: loadingMsg.key
-            });
-        } catch (err) {
-            console.error('Ping edit error:', err);
-            // Fallback: send a new message if editing fails
-            await sock.sendMessage(m.from, { text: `🏓 Pong! Latency: ${latency} ms` });
+            if (!sock.user?.id) {
+                connection = 'CONNECTED';
+            }
+        } catch {
+            connection = 'UNKNOWN';
         }
-    });
+
+        // ─────────────────────────────────────
+        // PERFORMANCE LEVEL
+        // ─────────────────────────────────────
+
+        let performance;
+
+        if (responseTime <= 100) {
+            performance = 'EXCELLENT ⚡';
+        } else if (responseTime <= 300) {
+            performance = 'FAST 🚀';
+        } else if (responseTime <= 700) {
+            performance = 'STABLE 🟢';
+        } else {
+            performance = 'HIGH LATENCY 🟡';
+        }
+
+        // ─────────────────────────────────────
+        // FREEZER-MD PING UI
+        // ─────────────────────────────────────
+
+        const pingText = `
+╭━━━━━━━━━━━━━━━━━━━━━━━━━━╮
+┃     ${botName}
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+
+┏━━━〔 ⚡ PING TEST 〕━━━┓
+┃
+┃ 🏓 *PONG!*
+┃
+┃ 📡 LATENCY
+┃ └─ ${responseTime}ms
+┃
+┃ 🟢 CONNECTION
+┃ └─ ${connection}
+┃
+┃ 🚀 PERFORMANCE
+┃ └─ ${performance}
+┃
+┃ ⚙️ PREFIX
+┃ └─ ${prefix}
+┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+╭──────────────────────────╮
+│ ❄️ *FREEZER-MD*
+│ ⚡ *FAST • STABLE • POWERFUL*
+╰──────────────────────────╯
+`.trim();
+
+        await m.reply(pingText);
+
+    } catch (error) {
+
+        console.error(
+            '[FREEZER-MD] Ping Error:',
+            error
+        );
+
+        // ─────────────────────────────────────
+        // SAFE ERROR RESPONSE
+        // ─────────────────────────────────────
+
+        try {
+
+            await m.reply(`
+╭━━━〔 ❄️ FREEZER-MD 〕━━━╮
+┃
+┃ 🔴 *PING FAILED*
+┃
+┃ ${error?.message || 'Unable to measure latency.'}
+┃
+╰━━━━━━━━━━━━━━━━━━━━━━╯
+`.trim());
+
+        } catch (fallbackError) {
+
+            console.error(
+                '[FREEZER-MD] Ping fallback error:',
+                fallbackError
+            );
+        }
+    }
+});
