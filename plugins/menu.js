@@ -1,32 +1,23 @@
 'use strict';
 
 const axios = require('axios');
+
 const { cmd } = require('../arslan');
 
 cmd({
     pattern: 'menu',
     name: 'menu',
-    category: 'General',
     hidden: true,
+    description: 'Show available Freezer-MD commands',
     aliases: ['help', 'cmdlist', 'commands'],
-    description: 'Display the Freezer-MD command center',
     filename: __filename
 }, async (sock, m) => {
 
     const prefix = global.BOT_PREFIX || '.';
-    const botOwner = global.ownerName || '🥶 Freezer 🥶';
 
-    const user =
-        m.pushName ||
-        m.sender?.split('@')[0] ||
-        'User';
-
-    const channelUrl =
-        'https://whatsapp.com/channel/0029Vb87tM1D8SE7qCVjbq3U';
-
-    // ─────────────────────────────────────────
+    // ─────────────────────────────────────────────
     // DATE & TIME
-    // ─────────────────────────────────────────
+    // ─────────────────────────────────────────────
 
     const now = new Date();
 
@@ -45,42 +36,57 @@ cmd({
         timeZone: 'Africa/Nairobi'
     });
 
-    // ─────────────────────────────────────────
-    // SYSTEM
-    // ─────────────────────────────────────────
+    // ─────────────────────────────────────────────
+    // BOT INFORMATION
+    // ─────────────────────────────────────────────
 
-    const uptime = process.uptime();
+    const botOwner =
+        global.ownerName || '🥶 Freezer 🥶';
 
-    const hours = Math.floor(uptime / 3600);
-    const minutes = Math.floor((uptime % 3600) / 60);
-    const seconds = Math.floor(uptime % 60);
+    const user =
+        m.pushName ||
+        m.sender?.split('@')[0] ||
+        'User';
 
-    const uptimeText =
-        `${hours}h ${minutes}m ${seconds}s`;
+    const uptimeSec = process.uptime();
 
-    const ram =
+    const uh =
+        Math.floor(uptimeSec / 3600);
+
+    const um =
+        Math.floor((uptimeSec % 3600) / 60);
+
+    const us =
+        Math.floor(uptimeSec % 60);
+
+    const uptimeStr =
+        `${uh}h ${um}m ${us}s`;
+
+    const ramStr =
         `${(
             process.memoryUsage().rss /
             1024 /
             1024
-        ).toFixed(2)} MB`;
+        ).toFixed(2)}MB`;
 
-    // ─────────────────────────────────────────
-    // MENU DESIGN
-    // ─────────────────────────────────────────
+    // ─────────────────────────────────────────────
+    // FREEZER-MD DESIGN
+    // ─────────────────────────────────────────────
+
+    const CAP = '❄️';
 
     const TOP =
-        '╭━━━〔 ❄️ FREEZER-MD 〕';
+        `╭──═════════════${CAP}`;
 
     const MID =
-        '┣━━━━━━━━━━━━━━━━━━━━';
+        `╠──═════════════${CAP}`;
 
     const BOT =
-        '╰━━━━━━━━━━━━━━━━━━━━';
+        `╰──═════════════${CAP}`;
 
-    // ─────────────────────────────────────────
-    // CATEGORIES
-    // ─────────────────────────────────────────
+    // ─────────────────────────────────────────────
+    // COMMAND CATEGORIES
+    // ─────────────────────────────────────────────
 
     const CATEGORY_ORDER = [
         'General',
@@ -100,21 +106,21 @@ cmd({
     const CATEGORY_ICONS = {
         General: '⚡',
         Downloaders: '📥',
-        Tools: '🔧',
-        AI: '🤖',
+        Tools: '🛠️',
+        AI: '🧠',
         Media: '🎨',
-        Fun: '🎮',
+        Fun: '🎉',
         Group: '👥',
         Security: '🛡️',
         Status: '📡',
         Channel: '📢',
-        Admin: '⚙️',
-        Owner: '👑'
+        Admin: '👑',
+        Owner: '🔐'
     };
 
-    // ─────────────────────────────────────────
+    // ─────────────────────────────────────────────
     // LOAD PLUGINS
-    // ─────────────────────────────────────────
+    // ─────────────────────────────────────────────
 
     const grouped = {};
     const seen = new Set();
@@ -126,7 +132,8 @@ cmd({
         const uniquePlugins =
             new Set(global.plugins.values());
 
-        totalPlugins = uniquePlugins.size;
+        totalPlugins =
+            uniquePlugins.size;
 
         for (const plugin of uniquePlugins) {
 
@@ -134,7 +141,7 @@ cmd({
                 continue;
             }
 
-            // Hidden commands stay hidden
+            // Hidden plugins don't appear in menu
             if (plugin.hidden) {
                 continue;
             }
@@ -158,11 +165,11 @@ cmd({
         }
     }
 
-    // ─────────────────────────────────────────
-    // ORDER CATEGORIES
-    // ─────────────────────────────────────────
+    // ─────────────────────────────────────────────
+    // CATEGORY ORDER
+    // ─────────────────────────────────────────────
 
-    const categories = [
+    const allCategories = [
         ...CATEGORY_ORDER.filter(
             category => grouped[category]
         ),
@@ -173,137 +180,139 @@ cmd({
         )
     ];
 
-    // ─────────────────────────────────────────
-    // BUILD COMMAND SECTIONS
-    // ─────────────────────────────────────────
+    // ─────────────────────────────────────────────
+    // BUILD MENU SECTIONS
+    // ─────────────────────────────────────────────
 
-    const commandSections = categories
-        .map(category => {
+    const commandSections =
+        allCategories.map(category => {
 
             const icon =
-                CATEGORY_ICONS[category] || '📂';
+                CATEGORY_ICONS[category] ||
+                '📂';
 
-            const commands =
+            const lines =
                 grouped[category]
                     .sort((a, b) =>
                         a.localeCompare(b)
                     )
                     .map(command =>
-                        `┃ ❄️ ${command}`
+                        `║ ❄️ ${command}`
                     )
                     .join('\n');
 
             return `${TOP}
-┃ ${icon} *${category.toUpperCase()}*
+║ ${icon} *${category.toUpperCase()}*
 ${MID}
-${commands}
+║
+${lines}
+║
 ${BOT}`;
 
-        })
-        .join('\n\n');
+        }).join('\n\n');
 
-    // ─────────────────────────────────────────
-    // MENU
-    // ─────────────────────────────────────────
+    // ─────────────────────────────────────────────
+    // FREEZER-MD MENU
+    // ─────────────────────────────────────────────
 
     const menuText = `
 ${TOP}
-┃
-┃       ❄️ *FREEZER-MD* ❄️
-┃
-┃   *ADVANCED WHATSAPP BOT*
-┃
+║
+║ ❄️ *𝗙𝗥𝗘𝗘𝗭𝗘𝗥-𝗠𝗗* ❄️
+║
+║ *𝗔𝗗𝗩𝗔𝗡𝗖𝗘𝗗 𝗪𝗛𝗔𝗧𝗦𝗔𝗣𝗣 𝗕𝗢𝗧*
 ${MID}
-┃
-┃ 👑 *OWNER:* ${botOwner}
-┃ 👤 *USER:* ${user}
-┃ 🧩 *PLUGINS:* ${totalPlugins}
-┃ 🚀 *UPTIME:* ${uptimeText}
-┃ 📅 *DATE:* ${date}
-┃ 🕐 *TIME:* ${time}
-┃ 💾 *RAM:* ${ram}
-┃ ⚙️ *PREFIX:* ${prefix}
-┃
+║
+║ 👑 𝗢𝗪𝗡𝗘𝗥: ${botOwner}
+║ 🙋 𝗨𝗦𝗘𝗥: ${user}
+║ 🧩 𝗣𝗟𝗨𝗚𝗜𝗡𝗦: ${totalPlugins}
+║ 🚀 𝗨𝗣𝗧𝗜𝗠𝗘: ${uptimeStr}
+║ 📆 𝗗𝗔𝗧𝗘: ${date}
+║ 🕐 𝗧𝗜𝗠𝗘: ${time}
+║ 📊 𝗥𝗔𝗠: ${ramStr}
+║ 🔧 𝗣𝗥𝗘𝗙𝗜𝗫: ${prefix}
+║
 ${BOT}
 
 ${commandSections}
 
 ${TOP}
-┃
-┃ 📢 *OFFICIAL CHANNEL*
-┃
-┃ Follow Freezer-MD for:
-┃
-┃ 🚀 New updates
-┃ 🧩 New plugins
-┃ 🔥 Exclusive features
-┃ 🛠️ Tutorials & fixes
-┃
-┃ 🔗 ${channelUrl}
-┃
+║
+║ 📢 *𝗢𝗙𝗙𝗜𝗖𝗜𝗔𝗟 𝗙𝗥𝗘𝗘𝗭𝗘𝗥-𝗠𝗗 𝗖𝗛𝗔𝗡𝗡𝗘𝗟*
+║
+║ 🔗 https://whatsapp.com/channel/0029Vb87tM1D8SE7qCVjbq3U
+║
 ${BOT}
 
-> ❄️ *FREEZER-MD*
-> *POWERED BY ADVANCED TECHNOLOGY*
-> *BUILT DIFFERENT.*
+❄️ *𝗙𝗥𝗘𝗘𝗭𝗘𝗥-𝗠𝗗*
+> *𝗣𝗢𝗪𝗘𝗥𝗘𝗗 𝗕𝗬 𝗙𝗥𝗘𝗘𝗭𝗘𝗥*
+> *𝗕𝗨𝗜𝗟𝗧 𝗗𝗜𝗙𝗙𝗘𝗥𝗘𝗡𝗧.*
 `.trim();
 
-    // ─────────────────────────────────────────
-    // SEND MENU
-    // ─────────────────────────────────────────
+    // ─────────────────────────────────────────────
+    // SEND MENU IMAGE
+    // ─────────────────────────────────────────────
 
     try {
 
         if (!global.menuImage) {
             throw new Error(
-                'global.menuImage is not configured'
+                'global.menuImage is not set'
             );
         }
 
-        const image =
+        const imageBuffer =
             (
                 await axios.get(
                     global.menuImage,
                     {
-                        responseType: 'arraybuffer',
-                        timeout: 10000
+                        responseType:
+                            'arraybuffer',
+                        timeout: 8000
                     }
                 )
             ).data;
 
-        await m.reply(image, {
-            caption: menuText,
+        await m.reply(
+            imageBuffer,
+            {
+                caption: menuText,
 
-            contextInfo: {
-                forwardingScore: 999,
-                isForwarded: true,
+                contextInfo: {
+                    forwardingScore: 999,
+                    isForwarded: true,
 
-                forwardedNewsletterMessageInfo: {
-                    newsletterJid:
-                        '120363426778975572@newsletter',
+                    forwardedNewsletterMessageInfo: {
+                        newsletterJid:
+                            '120363426778975572@newsletter',
 
-                    newsletterName:
-                        '❄️ FREEZER-MD ❄️',
+                        newsletterName:
+                            '❄️ FREEZER-MD ❄️',
 
-                    serverMessageId: 1
+                        serverMessageId: 1
+                    }
                 }
             }
-        });
+        );
 
     } catch (err) {
 
         console.error(
-            '❌ Freezer-MD Menu Error:',
+            '❌ Freezer-MD menu image error:',
             err.message
         );
 
         // Text fallback
-        await m.reply(menuText)
-            .catch(error =>
-                console.error(
-                    '❌ Menu fallback error:',
-                    error.message
-                )
+        try {
+
+            await m.reply(menuText);
+
+        } catch (err2) {
+
+            console.error(
+                '❌ Freezer-MD menu fallback error:',
+                err2.message
             );
+        }
     }
 });
