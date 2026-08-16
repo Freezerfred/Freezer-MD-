@@ -3,95 +3,133 @@
 const { cmd } = require('../arslan');
 
 cmd({
-    pattern: 'alive',
+    pattern: "alive",
     name: 'alive',
     category: 'General',
-    aliases: ['online', 'status'],
     description: 'Check Freezer-MD system status',
+    aliases: ['status', 'botstatus'],
+    tags: ['main', 'status'],
+    command: /^\.?(alive|status|botstatus)$/i,
     filename: __filename
 }, async (sock, m) => {
 
     try {
+        // ─────────────────────────────────────
+        // FREEZER-MD SYSTEM INFORMATION
+        // ─────────────────────────────────────
+
         const prefix = global.BOT_PREFIX || '.';
-        const botName = global.ownerName || '❄️ Freezer 🥶';
+        const owner = global.ownerName || '🥶 Freezer 🥶';
+        const botName = '❄️ FREEZER-MD ❄️';
 
-        const uptime = process.uptime();
+        // Uptime
+        const uptimeSec = Math.floor(process.uptime());
 
-        const hours = Math.floor(uptime / 3600);
-        const minutes = Math.floor((uptime % 3600) / 60);
-        const seconds = Math.floor(uptime % 60);
+        const days = Math.floor(uptimeSec / 86400);
+        const hours = Math.floor((uptimeSec % 86400) / 3600);
+        const minutes = Math.floor((uptimeSec % 3600) / 60);
+        const seconds = uptimeSec % 60;
 
-        const uptimeText =
-            `${hours}h ${minutes}m ${seconds}s`;
+        const uptime = [
+            days ? `${days}d` : '',
+            hours ? `${hours}h` : '',
+            minutes ? `${minutes}m` : '',
+            `${seconds}s`
+        ].filter(Boolean).join(' ');
 
-        const memory =
-            process.memoryUsage().rss / 1024 / 1024;
+        // Memory
+        const memory = process.memoryUsage();
+        const ram = `${(memory.rss / 1024 / 1024).toFixed(2)} MB`;
 
-        const ram =
-            `${memory.toFixed(2)} MB`;
+        // Plugins
+        let pluginCount = 0;
 
-        const pluginCount =
-            global.plugins instanceof Map
-                ? new Set(global.plugins.values()).size
-                : 0;
+        if (global.plugins instanceof Map) {
+            const uniquePlugins = new Set();
 
+            for (const plugin of global.plugins.values()) {
+                if (plugin && typeof plugin === 'object') {
+                    uniquePlugins.add(plugin);
+                }
+            }
+
+            pluginCount = uniquePlugins.size;
+        }
+
+        // Node version
+        const nodeVersion = process.version;
+
+        // Platform
+        const platform = process.platform;
+
+        // Response time
         const start = Date.now();
 
-        await m.reply(
-            `╭━━━〔 ❄️ FREEZER-MD 〕━━━╮
+        // ─────────────────────────────────────
+        // ALIVE MESSAGE
+        // ─────────────────────────────────────
+
+        const aliveText = `
+╭━━━〔 ${botName} 〕━━━╮
 ┃
-┃       *SYSTEM ONLINE*
+┃ 🟢 *SYSTEM ONLINE*
 ┃
-┃ 🟢 STATUS
-┃ └─ ONLINE
+┃ ⚡ *RESPONSE*
+┃ └─ ${Date.now() - start}ms
 ┃
-┃ ⚡ RESPONSE
-┃ └─ Testing...
+┃ 🚀 *UPTIME*
+┃ └─ ${uptime}
 ┃
-┃ 🚀 UPTIME
-┃ └─ ${uptimeText}
-┃
-┃ 💾 MEMORY
+┃ 💾 *MEMORY*
 ┃ └─ ${ram}
 ┃
-┃ 🧩 PLUGINS
+┃ 🧩 *PLUGINS*
 ┃ └─ ${pluginCount}
 ┃
-┃ 👑 OWNER
-┃ └─ ${botName}
+┃ 👑 *OWNER*
+┃ └─ ${owner}
 ┃
-╰━━━━━━━━━━━━━━━━━━━━━━
-> ❄️ *POWERED BY FREEZER-MD*`
-        );
+┃ 🟦 *NODE.JS*
+┃ └─ ${nodeVersion}
+┃
+┃ 📱 *PLATFORM*
+┃ └─ ${platform}
+┃
+┃ ⚙️ *PREFIX*
+┃ └─ ${prefix}
+┃
+╰━━━━━━━━━━━━━━━━━━━━━━╯
 
-        const latency = Date.now() - start;
+❄️ *FREEZER-MD*
+> *POWERED BY ADVANCED TECHNOLOGY*
+`.trim();
 
-        await sock.sendMessage(
-            m.from,
-            {
-                text:
-                    `⚡ *Response:* ${latency}ms`,
-            },
-            { quoted: m }
-        );
+        // ─────────────────────────────────────
+        // SEND RESPONSE
+        // ─────────────────────────────────────
+
+        await m.reply(aliveText);
 
     } catch (err) {
 
-        console.error(
-            '❌ Freezer Alive Error:',
-            err
-        );
+        console.error('[FREEZER-MD] Alive Error:', err);
 
-        await m.reply(
-            `╭━━━〔 ❄️ FREEZER-MD 〕━━━╮
+        // Safe fallback — never crash the command
+        try {
+            await m.reply(
+                `╭━━━〔 ❄️ FREEZER-MD 〕━━━╮
 ┃
 ┃ ❌ *SYSTEM CHECK FAILED*
 ┃
-┃ ${String(
-                err.message || err
-            ).substring(0, 150)}
+┃ ${err?.message || 'Unknown system error'}
 ┃
-╰━━━━━━━━━━━━━━━━━━━━━━`
-        ).catch(() => {});
+╰━━━━━━━━━━━━━━━━━━━━━━╯`
+            );
+        } catch (fallbackError) {
+            console.error(
+                '[FREEZER-MD] Alive fallback error:',
+                fallbackError
+            );
+        }
     }
 });
