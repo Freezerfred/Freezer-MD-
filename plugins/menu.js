@@ -1,4 +1,4 @@
-const axios = require('axios');
+Const axios = require('axios');
 
 const { cmd } = require('../arslan');
 
@@ -41,14 +41,21 @@ cmd({
 
     const ramStr = `${(process.memoryUsage().rss / 1024 / 1024).toFixed(2)}MB`;
 
-    // ❄️ FREEZER MD MENU STYLE
-    const CAP = '❄️';
-    const TOP = `╭━━━『 ${CAP} 』`;
-    const MID = `┃━━━━━━━━━━━━━━━━━━`;
-    const BOT = `╰━━━━━━━━━━━━━━━━━━`;
+    // ❄️ STYLISH BORDERS & UNICODE BOLD MAPPING
+    const TOP = `╔════════════════╗`;
+    const MID = `╠════════════════╣`;
+    const BOT = `╚════════════════╝`;
 
-    // Auto-build the command list from whatever plugins are actually loaded,
-    // so new plugins show up here automatically without editing this file.
+    // Function to convert normal text to Unicode Serif Bold
+    const toBold = (text) => {
+        const normal = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        const bold = "𝐀𝐁𝐂𝐃𝐄𝐅𝐆𝐇𝐈𝐉𝐊𝐋𝐌𝐍𝐎𝐏𝐐𝐑𝐒𝐓𝐔𝐕𝐖𝐗𝐘𝐙𝐚𝐛𝐜𝐝𝐞𝐟𝐠𝐡𝐢𝐣𝐤𝐥𝐦𝐧𝐨𝐩𝐪𝐫𝐬𝐭𝐮𝐯𝐰𝐱𝐲𝐳𝟎𝟏𝟐𝟑𝟒𝟓𝟔𝟕𝟖𝟗";
+        return text.split('').map(char => {
+            const index = normal.indexOf(char);
+            return index !== -1 ? bold[index * 2] + bold[index * 2 + 1] : char;
+        }).join('');
+    };
+
     const CATEGORY_ORDER = [
         'General',
         'Downloaders',
@@ -107,40 +114,39 @@ cmd({
         const icon = CATEGORY_ICONS[category] || '📂';
 
         const lines = grouped[category]
-            .map(l => `┃ ❄️ ${l}`)
+            .map(l => `║ ❄️ ${toBold(l)}`)
             .join('\n');
 
         return `${TOP}
-┃ ${icon} *${category.toUpperCase()}*
+║ ${icon} ${toBold(category.toUpperCase() + ' COMMANDS')}
 ${MID}
-┃
+║
 ${lines}
-┃
+║
 ${BOT}`;
     }).join('\n\n');
 
     const menuText = `
 ${TOP}
-┃
-┃       ❄️ *FREEZER MD* ❄️
-┃
-┃  *ADVANCED WHATSAPP BOT*
+║       ❄️ ${toBold('FREEZER MD')} ❄️
+║   ${toBold('ADVANCED WHATSAPP BOT')}
 ${MID}
-┃
-┃ 👑 *OWNER:* ${botOwner}
-┃ 👤 *USER:* ${user}
-┃ ⚡ *PLUGINS:* ${totalPlugins}
-┃ 🚀 *UPTIME:* ${uptimeStr}
-┃ 📅 *DATE:* ${date}
-┃ 💾 *RAM:* ${ramStr}
-┃ ⚙️ *PREFIX:* ${prefix}
-┃
+║
+║ 👑 ${toBold('OWNER:')} ${toBold(botOwner)}
+║ 👤 ${toBold('USER:')} ${toBold(user)}
+║ ⚡ ${toBold('PLUGINS:')} ${toBold(String(totalPlugins))}
+║ 🚀 ${toBold('UPTIME:')} ${toBold(uptimeStr)}
+║ 📅 ${toBold('DATE:')} ${toBold(date)}
+║ ⏰ ${toBold('TIME:')} ${toBold(time)}
+║ 💾 ${toBold('RAM:')} ${toBold(ramStr)}
+║ ⚙️ ${toBold('PREFIX:')} [ ${toBold(prefix)} ]
+║
 ${BOT}
 
 ${commandSections}
 
-❄️ *FREEZER MD*
-> *POWERED BY ADVANCED TECHNOLOGY*
+❄️ ${toBold('FREEZER MD')}
+> ${toBold('POWERED BY ADVANCED TECHNOLOGY')}
 `.trim();
 
     try {    
