@@ -15,3 +15,10 @@ global.statusReactDelayMs = 2000;    // pause after reacting before handling the
 global.presenceMode = 'none'; // 'none' | 'typing' | 'recording' | 'online'
 global.updateZipUrl = 'https://github.com/Freezerfred/Freezer-MD-.git/archive/refs/heads/main.zip';
 global.antidelete = 'false';  // 'false' | 'inchat' | 'indm' — toggle at runtime with .antidelete
+
+
+global.channelUrl =
+    'https://whatsapp.com/channel/0029Vb87tM1D8SE7qCVjbq3U';
+
+global.channelName =
+    '❄️ FREEZER-MD OFFICIAL ❄️';
