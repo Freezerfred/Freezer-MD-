@@ -3,92 +3,180 @@
 const { cmd } = require('../arslan');
 
 cmd({
-    pattern: "group",
+    pattern: 'group',
     name: 'group',
     category: 'Group',
-    description: 'Manage Freezer-MD group settings',
-    aliases: ['gsettings', 'grup', 'gc'],
-    tags: ['group'],
-    command: /^\.?(group|gsettings|grup|gc)$/i,
+    description: 'Professional Freezer-MD group management',
+    aliases: [
+        'gsettings',
+        'grup',
+        'gc',
+        'groupinfo',
+        'ginfo'
+    ],
+    tags: ['group', 'admin', 'management'],
+    command: /^\.?(group|gsettings|grup|gc|groupinfo|ginfo)$/i,
     filename: __filename
 }, async (sock, m, args) => {
 
+    const prefix = global.BOT_PREFIX || '.';
+    const BOT_NAME = '❄️ FREEZER-MD';
+
+    // ─────────────────────────────────────────────
+    // UI HELPERS
+    // ─────────────────────────────────────────────
+
+    const box = (title, lines = []) => {
+        return [
+            `╭━━━〔 ${BOT_NAME} 〕━━━╮`,
+            `┃`,
+            `┃  ${title}`,
+            `┃`,
+            ...lines.map(line => `┃ ${line}`),
+            `┃`,
+            `╰━━━━━━━━━━━━━━━━━━━━━━╯`
+        ].join('\n');
+    };
+
+    const errorBox = (title, message) => {
+        return box(`❌ ${title}`, [
+            '',
+            message,
+            ''
+        ]);
+    };
+
+    const successBox = (title, lines) => {
+        return box(`✅ ${title}`, lines);
+    };
+
+    // ─────────────────────────────────────────────
+    // SAFE EXECUTION
+    // ─────────────────────────────────────────────
+
     try {
 
-        const prefix = global.BOT_PREFIX || '.';
-
-        // ─────────────────────────────────────────────
+        // ─────────────────────────────────────────
         // GROUP CHECK
-        // ─────────────────────────────────────────────
+        // ─────────────────────────────────────────
 
-        if (!m.isGroup) {
+        if (!m?.isGroup) {
             return await m.reply(
-                `❄️ *FREEZER-MD*\n\n` +
-                `╭━━━〔 ⚠️ ERROR 〕\n` +
-                `┃\n` +
-                `┃ This command can only\n` +
-                `┃ be used inside groups.\n` +
-                `┃\n` +
-                `╰━━━━━━━━━━━━━━━━━━`
+                errorBox(
+                    'GROUP ONLY',
+                    'This command can only be used inside a WhatsApp group.'
+                )
             );
         }
 
-        // ─────────────────────────────────────────────
-        // ADMIN / OWNER CHECK
-        // ─────────────────────────────────────────────
+        // ─────────────────────────────────────────
+        // USER PERMISSION
+        // ─────────────────────────────────────────
 
         if (!m.isOwner && !m.isAdmin) {
             return await m.reply(
-                `❄️ *FREEZER-MD*\n\n` +
-                `╭━━━〔 🛡️ ACCESS DENIED 〕\n` +
-                `┃\n` +
-                `┃ Only group admins or\n` +
-                `┃ the bot owner can use\n` +
-                `┃ this command.\n` +
-                `┃\n` +
-                `╰━━━━━━━━━━━━━━━━━━`
+                errorBox(
+                    'ACCESS DENIED',
+                    'Only group admins or the bot owner can use this command.'
+                )
             );
         }
 
-        // ─────────────────────────────────────────────
+        // ─────────────────────────────────────────
+        // GROUP METADATA
+        // ─────────────────────────────────────────
+
+        const metadata = m.groupMetadata || {};
+
+        const groupName =
+            metadata.subject || 'Unknown Group';
+
+        const description =
+            metadata.desc?.toString()?.trim() ||
+            'No description set';
+
+        const members =
+            metadata.participants?.length || 0;
+
+        const announce =
+            Boolean(metadata.announce);
+
+        // ─────────────────────────────────────────
+        // BOT ADMIN CHECK
+        // ─────────────────────────────────────────
+
+        let botIsAdmin = true;
+
+        try {
+            const botId = sock?.user?.id
+                ?.split(':')[0];
+
+            if (botId && Array.isArray(metadata.participants)) {
+
+                const botParticipant =
+                    metadata.participants.find(
+                        participant =>
+                            participant.id?.split(':')[0] === botId
+                    );
+
+                if (botParticipant) {
+                    botIsAdmin =
+                        botParticipant.admin === 'admin' ||
+                        botParticipant.admin === 'superadmin';
+                }
+            }
+
+        } catch (adminCheckError) {
+
+            console.warn(
+                '[FREEZER-MD] Bot admin check failed:',
+                adminCheckError.message
+            );
+        }
+
+        // ─────────────────────────────────────────
         // GROUP INFORMATION
-        // ─────────────────────────────────────────────
+        // ─────────────────────────────────────────
 
         if (!args.length) {
 
-            const currentName =
-                m.groupMetadata?.subject || 'Unknown';
+            const status =
+                announce
+                    ? '🔒 Admins Only'
+                    : '🔓 Everyone';
 
-            const currentDesc =
-                m.groupMetadata?.desc?.toString() ||
-                'No description';
-
-            const memberCount =
-                m.groupMetadata?.participants?.length || 0;
-
-            const isMuted =
-                m.groupMetadata?.announce || false;
+            const botStatus =
+                botIsAdmin
+                    ? '🟢 Admin'
+                    : '🔴 Not Admin';
 
             const infoText = `
 ╭━━━〔 ❄️ FREEZER-MD 〕━━━╮
 ┃
-┃      *GROUP MANAGEMENT*
+┃      👥 *GROUP MANAGER*
 ┃
 ╰━━━━━━━━━━━━━━━━━━━━━━
 
-╭━━━〔 👥 GROUP INFO 〕
+╭━━━〔 📊 GROUP INFO 〕━━━╮
 ┃
-┃ 🏷️ *NAME:* ${currentName}
-┃ 👥 *MEMBERS:* ${memberCount}
-┃ 🔒 *STATUS:* ${isMuted
-    ? 'Admin Only'
-    : 'Everyone'}
-┃ 📝 *DESCRIPTION:*
-┃ ${currentDesc.substring(0, 100)}
+┃ 🏷️ *NAME*
+┃ └─ ${groupName}
+┃
+┃ 👥 *MEMBERS*
+┃ └─ ${members}
+┃
+┃ 🔐 *MESSAGE MODE*
+┃ └─ ${status}
+┃
+┃ 🤖 *BOT STATUS*
+┃ └─ ${botStatus}
+┃
+┃ 📝 *DESCRIPTION*
+┃ └─ ${description.substring(0, 150)}
 ┃
 ╰━━━━━━━━━━━━━━━━━━━━━━
 
-╭━━━〔 ⚙️ COMMANDS 〕
+╭━━━〔 ⚙️ MANAGEMENT 〕━━━╮
 ┃
 ┃ ❄️ ${prefix}group name <text>
 ┃ ❄️ ${prefix}group desc <text>
@@ -98,39 +186,66 @@ cmd({
 ┃
 ╰━━━━━━━━━━━━━━━━━━━━━━
 
-> *Freezer-MD Group Management*
+> ⚡ *FREEZER-MD GROUP ENGINE*
 `.trim();
 
             return await m.reply(infoText);
         }
 
-        // ─────────────────────────────────────────────
+        // ─────────────────────────────────────────
         // COMMAND PARSER
-        // ─────────────────────────────────────────────
+        // ─────────────────────────────────────────
 
         const command =
-            args[0].toLowerCase();
+            String(args[0] || '').toLowerCase().trim();
 
         const text =
-            args.slice(1).join(' ').trim();
+            args
+                .slice(1)
+                .join(' ')
+                .trim();
 
-        // ─────────────────────────────────────────────
+        // ─────────────────────────────────────────
+        // VALIDATION
+        // ─────────────────────────────────────────
+
+        const requireText = (usage) => {
+
+            if (!text) {
+                throw new Error(
+                    `Please provide the required text.\n\nExample:\n${usage}`
+                );
+            }
+        };
+
+        const requireBotAdmin = () => {
+
+            if (!botIsAdmin) {
+                throw new Error(
+                    'I need to be a group admin before I can perform this action.'
+                );
+            }
+        };
+
+        // ─────────────────────────────────────────
         // CHANGE GROUP NAME
-        // ─────────────────────────────────────────────
+        // ─────────────────────────────────────────
 
         if (command === 'name') {
 
-            if (!text) {
-                return await m.reply(
-                    `❌ *FREEZER-MD ERROR*\n\n` +
-                    `Please provide a new group name.\n\n` +
-                    `Example:\n` +
-                    `${prefix}group name Freezer Cartel`
+            requireBotAdmin();
+
+            requireText(
+                `${prefix}group name Freezer Cartel`
+            );
+
+            if (text.length > 100) {
+                throw new Error(
+                    'The group name is too long. Please keep it under 100 characters.'
                 );
             }
 
-            const oldName =
-                m.groupMetadata?.subject || 'Unknown';
+            const oldName = groupName;
 
             await sock.groupUpdateSubject(
                 m.from,
@@ -138,29 +253,34 @@ cmd({
             );
 
             return await m.reply(
-                `╭━━━〔 ❄️ FREEZER-MD 〕━━━╮
-┃
-┃ ✅ *GROUP NAME UPDATED*
-┃
-┃ 🏷️ *OLD:* ${oldName}
-┃ ✨ *NEW:* ${text}
-┃
-╰━━━━━━━━━━━━━━━━━━━━━━`
+                successBox(
+                    'GROUP NAME UPDATED',
+                    [
+                        `🏷️ *OLD*`,
+                        `└─ ${oldName}`,
+                        '',
+                        `✨ *NEW*`,
+                        `└─ ${text}`
+                    ]
+                )
             );
         }
 
-        // ─────────────────────────────────────────────
+        // ─────────────────────────────────────────
         // CHANGE GROUP DESCRIPTION
-        // ─────────────────────────────────────────────
+        // ─────────────────────────────────────────
 
         if (command === 'desc') {
 
-            if (!text) {
-                return await m.reply(
-                    `❌ *FREEZER-MD ERROR*\n\n` +
-                    `Please provide a new group description.\n\n` +
-                    `Example:\n` +
-                    `${prefix}group desc Welcome to Freezer Cartel`
+            requireBotAdmin();
+
+            requireText(
+                `${prefix}group desc Welcome to Freezer Cartel`
+            );
+
+            if (text.length > 5000) {
+                throw new Error(
+                    'The group description is too long.'
                 );
             }
 
@@ -170,22 +290,23 @@ cmd({
             );
 
             return await m.reply(
-                `╭━━━〔 ❄️ FREEZER-MD 〕━━━╮
-┃
-┃ ✅ *DESCRIPTION UPDATED*
-┃
-┃ 📝 *NEW DESCRIPTION:*
-┃ ${text.substring(0, 200)}
-┃
-╰━━━━━━━━━━━━━━━━━━━━━━`
+                successBox(
+                    'DESCRIPTION UPDATED',
+                    [
+                        '📝 *NEW DESCRIPTION*',
+                        `└─ ${text.substring(0, 300)}`
+                    ]
+                )
             );
         }
 
-        // ─────────────────────────────────────────────
+        // ─────────────────────────────────────────
         // MUTE GROUP
-        // ─────────────────────────────────────────────
+        // ─────────────────────────────────────────
 
         if (command === 'mute') {
+
+            requireBotAdmin();
 
             await sock.groupSettingUpdate(
                 m.from,
@@ -193,22 +314,23 @@ cmd({
             );
 
             return await m.reply(
-                `╭━━━〔 ❄️ FREEZER-MD 〕━━━╮
-┃
-┃ 🔒 *GROUP MUTED*
-┃
-┃ Only group admins can
-┃ send messages now.
-┃
-╰━━━━━━━━━━━━━━━━━━━━━━`
+                successBox(
+                    'GROUP MUTED',
+                    [
+                        '🔒 Only group admins can',
+                        'send messages now.'
+                    ]
+                )
             );
         }
 
-        // ─────────────────────────────────────────────
+        // ─────────────────────────────────────────
         // UNMUTE GROUP
-        // ─────────────────────────────────────────────
+        // ─────────────────────────────────────────
 
         if (command === 'unmute') {
+
+            requireBotAdmin();
 
             await sock.groupSettingUpdate(
                 m.from,
@@ -216,22 +338,23 @@ cmd({
             );
 
             return await m.reply(
-                `╭━━━〔 ❄️ FREEZER-MD 〕━━━╮
-┃
-┃ 🔓 *GROUP UNMUTED*
-┃
-┃ Everyone can send
-┃ messages again.
-┃
-╰━━━━━━━━━━━━━━━━━━━━━━`
+                successBox(
+                    'GROUP UNMUTED',
+                    [
+                        '🔓 Everyone can send',
+                        'messages again.'
+                    ]
+                )
             );
         }
 
-        // ─────────────────────────────────────────────
+        // ─────────────────────────────────────────
         // RESET DESCRIPTION
-        // ─────────────────────────────────────────────
+        // ─────────────────────────────────────────
 
         if (command === 'reset') {
+
+            requireBotAdmin();
 
             await sock.groupUpdateDescription(
                 m.from,
@@ -239,53 +362,55 @@ cmd({
             );
 
             return await m.reply(
-                `╭━━━〔 ❄️ FREEZER-MD 〕━━━╮
-┃
-┃ 🧹 *DESCRIPTION RESET*
-┃
-┃ The group description
-┃ has been cleared.
-┃
-╰━━━━━━━━━━━━━━━━━━━━━━`
+                successBox(
+                    'DESCRIPTION RESET',
+                    [
+                        '🧹 The group description',
+                        'has been cleared successfully.'
+                    ]
+                )
             );
         }
 
-        // ─────────────────────────────────────────────
+        // ─────────────────────────────────────────
         // INVALID COMMAND
-        // ─────────────────────────────────────────────
+        // ─────────────────────────────────────────
 
         return await m.reply(
-            `❌ *FREEZER-MD ERROR*\n\n` +
-            `Invalid option: *${command}*\n\n` +
-            `Available options:\n` +
-            `❄️ name\n` +
-            `❄️ desc\n` +
-            `❄️ mute\n` +
-            `❄️ unmute\n` +
-            `❄️ reset\n\n` +
-            `Example:\n` +
-            `${prefix}group mute`
+            errorBox(
+                'INVALID OPTION',
+                [
+                    `You used: *${command}*`,
+                    '',
+                    '*Available commands:*',
+                    `❄️ ${prefix}group name <text>`,
+                    `❄️ ${prefix}group desc <text>`,
+                    `❄️ ${prefix}group mute`,
+                    `❄️ ${prefix}group unmute`,
+                    `❄️ ${prefix}group reset`
+                ].join('\n')
+            )
         );
 
     } catch (err) {
 
         console.error(
-            '❌ Freezer Group Error:',
+            '[FREEZER-MD] Group Manager Error:',
             err
         );
 
-        await m.reply(
-            `╭━━━〔 ❄️ FREEZER-MD 〕━━━╮
-┃
-┃ ❌ *GROUP ACTION FAILED*
-┃
-┃ Something went wrong while
-┃ updating the group settings.
-┃
-┃ 🛠️ *ERROR:*
-┃ ${String(err.message || err).substring(0, 150)}
-┃
-╰━━━━━━━━━━━━━━━━━━━━━━`
+        // ─────────────────────────────────────────
+        // CLEAN USER-FACING ERROR
+        // ─────────────────────────────────────────
+
+        const message =
+            String(err?.message || 'Unknown error');
+
+        return await m.reply(
+            errorBox(
+                'ACTION FAILED',
+                message.substring(0, 500)
+            )
         );
     }
 });
