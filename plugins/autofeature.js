@@ -1,177 +1,290 @@
 'use strict';
 
 const { cmd } = require('../arslan');
-const autoFeatures = require('../lib/autoFeatures');
 
 cmd({
-    pattern: 'autofeature',
+    pattern: "autofeature",
     name: 'autofeature',
     category: 'Admin',
-    aliases: ['af', 'autof'],
-    description: 'Manage Freezer-MD automatic features',
+    aliases: ['af'],
+    description: 'Control Freezer-MD automatic features',
     filename: __filename
 }, async (sock, m, args) => {
 
-    // Owner protection
-    if (!global.owners || !global.owners.includes(m.sender)) {
-        return m.reply('❌ This command is owner only.');
-    }
+    try {
 
-    const sub = (args[0] || '').toLowerCase();
-    const value = (args[1] || '').toLowerCase();
+        const prefix = global.BOT_PREFIX || '.';
 
-    const status = autoFeatures.getStatus();
+        // ─────────────────────────────────────────────
+        // OWNER CHECK
+        // ─────────────────────────────────────────────
 
-    // =========================
-    // MAIN STATUS
-    // =========================
-    if (!sub) {
-        return m.reply(
-`🥶 *FREEZER-MD AUTO FEATURES*
+        const normalizeJid = (jid) =>
+            jid?.split(':')[0];
 
-╭───────────────╮
-│ ⚙️ AUTO FEATURES
-╰───────────────╯
+        const sender =
+            normalizeJid(m.sender);
 
-📖 Auto Read    : ${status.autoRead ? '🟢 ON' : '🔴 OFF'}
-👁️ Auto View    : ${status.autoView ? '🟢 ON' : '🔴 OFF'}
-❤️ Auto Like    : ${status.autoLike ? '🟢 ON' : '🔴 OFF'}
-🟢 Presence     : ${status.presenceMode.toUpperCase()}
+        const owners =
+            (global.owners || [])
+                .map(normalizeJid);
 
-╭───────────────╮
-│ 📚 COMMANDS
-╰───────────────╯
+        const devs =
+            (global.dev || [])
+                .map(normalizeJid);
 
-• .autofeature read on
-• .autofeature read off
+        const botId =
+            normalizeJid(sock.user?.id);
 
-• .autofeature view on
-• .autofeature view off
+        const isOwner =
+            owners.includes(sender) ||
+            devs.includes(sender) ||
+            sender === botId;
 
-• .autofeature like on
-• .autofeature like off
-
-• .autofeature presence online
-• .autofeature presence typing
-• .autofeature presence recording
-• .autofeature presence none
-
-🥶 *FREEZER-MD*`
-        );
-    }
-
-    // =========================
-    // ON / OFF FEATURES
-    // =========================
-    if (['read', 'view', 'like'].includes(sub)) {
-
-        if (!['on', 'off'].includes(value)) {
-            return m.reply(
-`❌ Invalid option.
-
-Usage:
-.autofeature ${sub} on
-.autofeature ${sub} off
-
-Current: ${status[`auto${sub.charAt(0).toUpperCase() + sub.slice(1)}`] ? 'ON' : 'OFF'}`
-            );
+        if (!isOwner) {
+            return;
         }
 
-        const enabled = value === 'on';
+        // ─────────────────────────────────────────────
+        // HELPERS
+        // ─────────────────────────────────────────────
+
+        const onOff = (value) => {
+            if (value === 'on') return true;
+            if (value === 'off') return false;
+            return null;
+        };
+
+        const status = (value) =>
+            value ? '🟢 ON' : '🔴 OFF';
+
+        const sub =
+            (args[0] || '').toLowerCase();
+
+        const val =
+            (args[1] || '').toLowerCase();
+
+        // ─────────────────────────────────────────────
+        // AUTO READ
+        // ─────────────────────────────────────────────
 
         if (sub === 'read') {
-            autoFeatures.set('autoRead', enabled);
-        }
 
-        if (sub === 'view') {
-            autoFeatures.set('autoView', enabled);
-        }
+            const parsed = onOff(val);
 
-        if (sub === 'like') {
-            autoFeatures.set('autoLike', enabled);
-        }
+            if (parsed === null) {
+                return await m.reply(
+                    `╭━━━〔 ❄️ FREEZER-MD 〕━━━╮
+┃
+┃ 📖 *AUTO-READ*
+┃
+┃ Current: ${status(global.autoRead)}
+┃
+┃ Usage:
+┃ ${prefix}autofeature read on
+┃ ${prefix}autofeature read off
+┃
+╰━━━━━━━━━━━━━━━━━━━━━━`
+                );
+            }
 
-        return m.reply(
-`🥶 *FREEZER-MD AUTO FEATURE*
+            global.autoRead = parsed;
 
-⚙️ Feature : ${sub.toUpperCase()}
-📡 Status  : ${enabled ? '🟢 ENABLED' : '🔴 DISABLED'}
-
-Settings saved successfully.`
-        );
-    }
-
-    // =========================
-    // PRESENCE
-    // =========================
-    if (sub === 'presence') {
-
-        const modes = [
-            'none',
-            'online',
-            'typing',
-            'recording'
-        ];
-
-        if (!modes.includes(value)) {
-            return m.reply(
-`❌ Invalid presence mode.
-
-Available modes:
-
-• none
-• online
-• typing
-• recording
-
-Example:
-.autofeature presence typing`
+            return await m.reply(
+                `╭━━━〔 ❄️ FREEZER-MD 〕━━━╮
+┃
+┃ 📖 *AUTO-READ*
+┃
+┃ Status: ${status(parsed)}
+┃
+╰━━━━━━━━━━━━━━━━━━━━━━`
             );
         }
 
-        autoFeatures.set('presenceMode', value);
+        // ─────────────────────────────────────────────
+        // AUTO VIEW
+        // ─────────────────────────────────────────────
 
-        return m.reply(
-`🥶 *FREEZER-MD PRESENCE*
+        if (sub === 'view') {
 
-🟢 Presence mode:
-*${value.toUpperCase()}*
+            const parsed = onOff(val);
 
-💾 Setting saved successfully.`
+            if (parsed === null) {
+                return await m.reply(
+                    `╭━━━〔 ❄️ FREEZER-MD 〕━━━╮
+┃
+┃ 👁️ *AUTO-VIEW STATUS*
+┃
+┃ Current: ${status(global.autoView)}
+┃
+┃ Usage:
+┃ ${prefix}autofeature view on
+┃ ${prefix}autofeature view off
+┃
+╰━━━━━━━━━━━━━━━━━━━━━━`
+                );
+            }
+
+            global.autoView = parsed;
+
+            return await m.reply(
+                `╭━━━〔 ❄️ FREEZER-MD 〕━━━╮
+┃
+┃ 👁️ *AUTO-VIEW*
+┃
+┃ Status: ${status(parsed)}
+┃
+╰━━━━━━━━━━━━━━━━━━━━━━`
+            );
+        }
+
+        // ─────────────────────────────────────────────
+        // AUTO LIKE
+        // ─────────────────────────────────────────────
+
+        if (sub === 'like') {
+
+            const parsed = onOff(val);
+
+            if (parsed === null) {
+                return await m.reply(
+                    `╭━━━〔 ❄️ FREEZER-MD 〕━━━╮
+┃
+┃ ❤️ *AUTO-LIKE STATUS*
+┃
+┃ Current: ${status(global.autoLike)}
+┃
+┃ Usage:
+┃ ${prefix}autofeature like on
+┃ ${prefix}autofeature like off
+┃
+╰━━━━━━━━━━━━━━━━━━━━━━`
+                );
+            }
+
+            global.autoLike = parsed;
+
+            return await m.reply(
+                `╭━━━〔 ❄️ FREEZER-MD 〕━━━╮
+┃
+┃ ❤️ *AUTO-LIKE*
+┃
+┃ Status: ${status(parsed)}
+┃
+╰━━━━━━━━━━━━━━━━━━━━━━`
+            );
+        }
+
+        // ─────────────────────────────────────────────
+        // PRESENCE
+        // ─────────────────────────────────────────────
+
+        if (sub === 'presence') {
+
+            const modes = [
+                'none',
+                'typing',
+                'recording',
+                'online'
+            ];
+
+            if (!modes.includes(val)) {
+
+                return await m.reply(
+                    `╭━━━〔 ❄️ FREEZER-MD 〕━━━╮
+┃
+┃ 📡 *PRESENCE MODE*
+┃
+┃ Current:
+┃ ${global.presenceMode || 'none'}
+┃
+┃ Available modes:
+┃
+┃ • none
+┃ • typing
+┃ • recording
+┃ • online
+┃
+┃ Usage:
+┃ ${prefix}autofeature presence typing
+┃
+╰━━━━━━━━━━━━━━━━━━━━━━`
+                );
+            }
+
+            global.presenceMode = val;
+
+            return await m.reply(
+                `╭━━━〔 ❄️ FREEZER-MD 〕━━━╮
+┃
+┃ 📡 *PRESENCE UPDATED*
+┃
+┃ Mode: *${val.toUpperCase()}*
+┃
+╰━━━━━━━━━━━━━━━━━━━━━━`
+            );
+        }
+
+        // ─────────────────────────────────────────────
+        // MAIN CONTROL PANEL
+        // ─────────────────────────────────────────────
+
+        return await m.reply(
+            `╭━━━〔 ❄️ FREEZER-MD 〕━━━╮
+┃
+┃      *AUTO FEATURES*
+┃
+╰━━━━━━━━━━━━━━━━━━━━━━
+
+╭━━━〔 ⚙️ CURRENT STATUS 〕
+┃
+┃ 📖 Auto-Read
+┃ └─ ${status(global.autoRead)}
+┃
+┃ 👁️ Auto-View
+┃ └─ ${status(global.autoView)}
+┃
+┃ ❤️ Auto-Like
+┃ └─ ${status(global.autoLike)}
+┃
+┃ 📡 Presence
+┃ └─ 🟢 ${(global.presenceMode || 'none').toUpperCase()}
+┃
+╰━━━━━━━━━━━━━━━━━━━━━━
+
+╭━━━〔 🛠️ CONTROLS 〕
+┃
+┃ ${prefix}autofeature read on/off
+┃ ${prefix}autofeature view on/off
+┃ ${prefix}autofeature like on/off
+┃ ${prefix}autofeature presence
+┃ └─ none
+┃ └─ typing
+┃ └─ recording
+┃ └─ online
+┃
+╰━━━━━━━━━━━━━━━━━━━━━━
+
+> ❄️ *Freezer-MD Admin System*`
         );
-    }
 
-    // =========================
-    // RESET
-    // =========================
-    if (sub === 'reset') {
+    } catch (err) {
 
-        autoFeatures.reset();
-
-        return m.reply(
-`🥶 *FREEZER-MD AUTO FEATURES*
-
-♻️ All automatic features have been reset.
-
-📖 Auto Read : OFF
-👁️ Auto View : OFF
-❤️ Auto Like : OFF
-🟢 Presence  : NONE`
+        console.error(
+            '❌ Freezer AutoFeature Error:',
+            err
         );
+
+        await m.reply(
+            `╭━━━〔 ❄️ FREEZER-MD 〕━━━╮
+┃
+┃ ❌ *AUTO FEATURE ERROR*
+┃
+┃ ${String(
+                err.message || err
+            ).substring(0, 150)}
+┃
+╰━━━━━━━━━━━━━━━━━━━━━━`
+        ).catch(() => {});
     }
-
-    return m.reply(
-`❌ Unknown option.
-
-Use:
-.autofeature
-
-or
-
-.autofeature read on/off
-.autofeature view on/off
-.autofeature like on/off
-.autofeature presence none/online/typing/recording
-.autofeature reset`
-    );
 });
