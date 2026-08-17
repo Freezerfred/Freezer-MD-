@@ -16,8 +16,6 @@ cmd({
 
         const start = Date.now();
 
-        await sock.sendPresenceUpdate('composing', m.from);
-
         const latency = Date.now() - start;
 
         const status =
@@ -29,15 +27,18 @@ cmd({
         await sendInteractiveMessage(sock, m.from, {
             title: '❄️ FREEZER-MD',
             text:
-`╭━━━〔 ❄️ FREEZER-MD 〕━━━╮
+`╭━━━━━━━━━━━━━━━━━━━━╮
+┃ ❄️ *FREEZER-MD*
+┣━━━━━━━━━━━━━━━━━━━━┫
 ┃
 ┃ 🏓 *PONG!*
 ┃
 ┃ ⚡ *Latency:* ${latency}ms
 ┃ 📡 *Status:* ${status}
 ┃
-╰━━━━━━━━━━━━━━━━━━━━━━╯
-❄️ *FAST • STABLE • POWERFUL*`,
+┣━━━━━━━━━━━━━━━━━━━━┫
+┃ ❄️ *FAST • STABLE • POWERFUL*
+╰━━━━━━━━━━━━━━━━━━━━╯`,
             footer: 'FREEZER-MD • BUILT DIFFERENT',
             interactiveButtons: [
                 {
@@ -55,10 +56,15 @@ cmd({
         console.error('[FREEZER-MD] Ping Error:', error);
 
         await m.reply(
-`❄️ *FREEZER-MD*
-
-❌ *Ping failed:*
-${error?.message || 'Unknown error'}`
+`╭━━━━━━━━━━━━━━━━━━━━╮
+┃ ❄️ *FREEZER-MD*
+┣━━━━━━━━━━━━━━━━━━━━┫
+┃
+┃ ❌ *PING FAILED*
+┃
+┃ ${error?.message || 'Unknown error'}
+┃
+╰━━━━━━━━━━━━━━━━━━━━╯`
         );
     }
 });
