@@ -1,197 +1,146 @@
-'use strict';
-
 const axios = require('axios');
+const fs = require('fs');
 const { sendInteractiveMessage } = require('gifted-btns');
+
 const { cmd } = require('../arslan');
 
 cmd({
-    pattern: 'menu',
+    pattern: "menu",
     name: 'menu',
     hidden: true,
-    description: 'Show Freezer-MD command center',
+    description: 'Show available bot commands',
     aliases: ['help', 'cmdlist', 'commands'],
     filename: __filename
-}, async (sock, m) => {
+}, async (sock, m) => {    
+    const prefix = global.BOT_PREFIX || '.';    
+    
+    const now = new Date();
+    
+    const date = now.toLocaleDateString('en-GB', { 
+        day: 'numeric', 
+        month: 'long', 
+        year: 'numeric',
+        timeZone: 'Africa/Accra'
+    });
+    
+    const time = now.toLocaleTimeString('en-US', { 
+        hour: '2-digit', 
+        minute: '2-digit', 
+        second: '2-digit',
+        hour12: true,
+        timeZone: 'Africa/Accra'
+    });
+    
+    const botOwner = global.ownerName || 'Freezer';
+    
+    const user = m.pushName || m.sender?.split('@')[0] || 'User';
 
-    const prefix = global.BOT_PREFIX || '.';
+    const uptimeSec = process.uptime();
+    const uh = Math.floor(uptimeSec / 3600);
+    const um = Math.floor((uptimeSec % 3600) / 60);
+    const us = Math.floor(uptimeSec % 60);
+    const uptimeStr = `${uh}h ${um}m ${us}s`;
 
-    const CHANNEL_URL =
-        'https://whatsapp.com/channel/0029Vb87tM1D8SE7qCVjbq3U';
+    const ramStr = `${(process.memoryUsage().rss / 1024 / 1024).toFixed(2)}MB`;
 
-    // ─────────────────────────────────────────────
-    // FREEZER-MD INFO
-    // ─────────────────────────────────────────────
+    // Box-drawing pieces + accent emoji
+    const CAP = '❍';
+    const TOP = `╭──═════════════${CAP}`;
+    const MID = `╠──═════════════${CAP}`;
+    const BOT = `╰──═════════════${CAP}`;
 
-    const user =
-        m.pushName ||
-        m.sender?.split('@')[0] ||
-        'User';
+    // Auto-build the command list from loaded plugins
+    const CATEGORY_ORDER = [
+        'General',
+        'Downloaders',
+        'Tools',
+        'AI',
+        'Fun',
+        'Group',
+        'Status',
+        'Channel',
+        'Admin'
+    ];
 
-    const uptime = process.uptime();
-
-    const hours = Math.floor(uptime / 3600);
-    const minutes = Math.floor((uptime % 3600) / 60);
-
-    const uptimeText =
-        `${hours}h ${minutes}m`;
-
-    // ─────────────────────────────────────────────
-    // MENU CATEGORIES
-    // ─────────────────────────────────────────────
-
-    const MENU_GROUPS = {
-        General: {
-            icon: '⚡',
-            categories: [
-                'General',
-                'Status',
-                'Channel'
-            ]
-        },
-
-        Downloads: {
-            icon: '📥',
-            categories: [
-                'Downloaders',
-                'Download',
-                'Media'
-            ]
-        },
-
-        Tools: {
-            icon: '🛠️',
-            categories: [
-                'Tools',
-                'Utilities'
-            ]
-        },
-
-        AI: {
-            icon: '🤖',
-            categories: [
-                'AI'
-            ]
-        },
-
-        Group: {
-            icon: '👥',
-            categories: [
-                'Group',
-                'Security'
-            ]
-        },
-
-        Owner: {
-            icon: '👑',
-            categories: [
-                'Admin',
-                'Owner'
-            ]
-        }
+    const CATEGORY_ICONS = {
+        General: '📜',
+        Downloaders: '💼',
+        Tools: '🛠️',
+        AI: '🧠',
+        Fun: '🎉',
+        Group: '👥',
+        Status: '📡',
+        Channel: '📢',
+        Admin: '👑'
     };
-
-    // ─────────────────────────────────────────────
-    // LOAD PLUGINS
-    // ─────────────────────────────────────────────
 
     const grouped = {};
     const seen = new Set();
+    let totalPlugins = 0;
 
     if (global.plugins instanceof Map) {
+        const uniquePlugins = new Set(global.plugins.values());
+        totalPlugins = uniquePlugins.size;
 
-        for (const plugin of new Set(global.plugins.values())) {
-
-            if (!plugin?.name) continue;
+        for (const plugin of global.plugins.values()) {
+            if (!plugin || !plugin.name) continue;
             if (plugin.hidden) continue;
+            if (seen.has(plugin.name)) continue;
 
-            const commandName =
-                String(plugin.name).toLowerCase();
+            seen.add(plugin.name);
 
-            if (seen.has(commandName)) continue;
+            const category = plugin.category || 'General';
 
-            seen.add(commandName);
-
-            const category =
-                plugin.category || 'General';
-
-            for (const [menuGroup, data] of Object.entries(MENU_GROUPS)) {
-
-                if (data.categories.includes(category)) {
-
-                    if (!grouped[menuGroup]) {
-                        grouped[menuGroup] = [];
-                    }
-
-                    grouped[menuGroup].push(
-                        `${prefix}${plugin.name}`
-                    );
-
-                    break;
-                }
+            if (!grouped[category]) {
+                grouped[category] = [];
             }
+
+            grouped[category].push(`${prefix}${plugin.name}`);
         }
     }
 
-    // ─────────────────────────────────────────────
-    // BUILD MENU
-    // ─────────────────────────────────────────────
+    const allCategories = [
+        ...CATEGORY_ORDER.filter(c => grouped[c]),
+        ...Object.keys(grouped).filter(
+            c => !CATEGORY_ORDER.includes(c)
+        )
+    ];
 
-    const sections = Object.entries(MENU_GROUPS)
-        .map(([group, data]) => {
+    const commandSections = allCategories.map(category => {
+        const icon = CATEGORY_ICONS[category] || '📂';
 
-            const commands =
-                (grouped[group] || [])
-                    .sort((a, b) =>
-                        a.localeCompare(b)
-                    );
+        const lines = grouped[category]
+            .map(l => `║ ❍ ${l}`)
+            .join('\n');
 
-            if (!commands.length) return '';
-
-            return (
-                `${data.icon} *${group.toUpperCase()}*\n` +
-                commands
-                    .map(command => `┃ ❄️ ${command}`)
-                    .join('\n')
-            );
-
-        })
-        .filter(Boolean)
-        .join('\n\n');
-
-    // ─────────────────────────────────────────────
-    // MENU TEXT
-    // ─────────────────────────────────────────────
+        return `${TOP}
+║ ${icon} *${category.toUpperCase()}*
+${MID}
+║
+${lines}
+║
+${BOT}`;
+    }).join('\n\n');
 
     const menuText = `
-╭━━━〔 ❄️ FREEZER-MD 〕━━━╮
-┃
-┃ 👋 *Hello, ${user}*
-┃
-┃ 🚀 *ADVANCED WHATSAPP BOT*
-┃ ⚡ *Fast • Stable • Powerful*
-┃
-┃ 🧩 *Commands:* ${seen.size}
-┃ ⏱️ *Uptime:* ${uptimeText}
-┃ 🔧 *Prefix:* ${prefix}
-┃
-╰━━━━━━━━━━━━━━━━━━━━━━
+${TOP}
+║ ✨ 𝗙𝗥𝗘𝗘𝗭𝗘𝗥-𝗠𝗗 ✨
+${MID}
+║
+║ 👤 𝗢𝗪𝗡𝗘𝗥: ${botOwner}
+║ 🙋 𝗨𝗦𝗘𝗥: ${user}
+║ 🚀 𝗣𝗟𝗨𝗚𝗜𝗡𝗦: ${totalPlugins}
+║ ⏳ 𝗨𝗣𝗧𝗜𝗠𝗘: ${uptimeStr}
+║ 📆 𝗗𝗔𝗧𝗘: ${date}
+║ 📊 𝗥𝗔𝗠: ${ramStr}
+║ 🔧 𝗣𝗥𝗘𝗙𝗜𝗫: ${prefix}
+║
+${BOT}
 
-${sections}
+${commandSections}
 
-╭━━━〔 📢 OFFICIAL CHANNEL 〕━━━╮
-┃
-┃ Stay updated with
-┃ Freezer-MD releases & updates.
-┃
-╰━━━━━━━━━━━━━━━━━━━━━━
-
-❄️ *FREEZER-MD*
-> *BUILT DIFFERENT.*
+*© Freezer-MD*
 `.trim();
-
-    // ─────────────────────────────────────────────
-    // SEND MENU IMAGE
-    // ─────────────────────────────────────────────
 
     try {
 
@@ -199,124 +148,71 @@ ${sections}
             throw new Error('global.menuImage is not set');
         }
 
-        const imageBuffer = (
-            await axios.get(
-                global.menuImage,
-                {
-                    responseType: 'arraybuffer',
-                    timeout: 8000
-                }
-            )
-        ).data;
+        const imageBuffer = /^https?:\/\//i.test(global.menuImage)
+            ? (await axios.get(global.menuImage, {
+                responseType: 'arraybuffer',
+                timeout: 8000
+            })).data
+            : fs.readFileSync(global.menuImage);
 
+        /*
+         * Send menu image first
+         */
         await m.reply(imageBuffer, {
             caption: menuText
+        });
+
+        /*
+         * Send clickable View Channel button
+         */
+        await sendInteractiveMessage(sock, m.from, {
+            title: '❄️ FREEZER-MD',
+            text: '📢 Stay updated with the latest Freezer-MD news, updates and releases.',
+            footer: '❄️ Freezer-MD • Advanced WhatsApp Bot',
+            interactiveButtons: [
+                {
+                    name: 'cta_url',
+                    buttonParamsJson: JSON.stringify({
+                        display_text: '📢 View Channel',
+                        url: 'https://whatsapp.com/channel/0029Vb87tM1D8SE7qCVjbq3U'
+                    })
+                }
+            ]
         });
 
     } catch (err) {
 
         console.error(
-            '[FREEZER-MD] Menu image error:',
+            'Menu image error, falling back to text:',
             err.message
         );
 
-        await m.reply(menuText);
-    }
+        try {
 
-    // ─────────────────────────────────────────────
-    // INTERACTIVE BUTTONS
-    // ─────────────────────────────────────────────
+            await m.reply(menuText);
 
-    try {
-
-        await sendInteractiveMessage(
-            sock,
-            m.from,
-            {
+            await sendInteractiveMessage(sock, m.from, {
                 title: '❄️ FREEZER-MD',
-                text:
-                    'Select a command section or join the official channel.',
-                footer:
-                    'FREEZER-MD • BUILT DIFFERENT',
-
+                text: '📢 Follow the official Freezer-MD Channel for updates.',
+                footer: '❄️ Freezer-MD',
                 interactiveButtons: [
-
-                    {
-                        name: 'quick_reply',
-                        buttonParamsJson:
-                            JSON.stringify({
-                                display_text: '⚡ General',
-                                id: `${prefix}help General`
-                            })
-                    },
-
-                    {
-                        name: 'quick_reply',
-                        buttonParamsJson:
-                            JSON.stringify({
-                                display_text: '📥 Downloads',
-                                id: `${prefix}help Downloads`
-                            })
-                    },
-
-                    {
-                        name: 'quick_reply',
-                        buttonParamsJson:
-                            JSON.stringify({
-                                display_text: '🛠️ Tools',
-                                id: `${prefix}help Tools`
-                            })
-                    },
-
-                    {
-                        name: 'quick_reply',
-                        buttonParamsJson:
-                            JSON.stringify({
-                                display_text: '🤖 AI',
-                                id: `${prefix}help AI`
-                            })
-                    },
-
-                    {
-                        name: 'quick_reply',
-                        buttonParamsJson:
-                            JSON.stringify({
-                                display_text: '👥 Group',
-                                id: `${prefix}help Group`
-                            })
-                    },
-
-                    {
-                        name: 'quick_reply',
-                        buttonParamsJson:
-                            JSON.stringify({
-                                display_text: '👑 Owner',
-                                id: `${prefix}help Owner`
-                            })
-                    },
-
                     {
                         name: 'cta_url',
-                        buttonParamsJson:
-                            JSON.stringify({
-                                display_text: '📢 View Channel',
-                                url: CHANNEL_URL
-                            })
+                        buttonParamsJson: JSON.stringify({
+                            display_text: '📢 View Channel',
+                            url: 'https://whatsapp.com/channel/0029Vb87tM1D8SE7qCVjbq3U'
+                        })
                     }
                 ]
-            }
-        );
+            });
 
-    } catch (err) {
+        } catch (err2) {
 
-        console.error(
-            '[FREEZER-MD] Interactive menu error:',
-            err.message
-        );
+            console.error(
+                'Menu fallback error:',
+                err2.message
+            );
 
-        // Channel link fallback
-        await m.reply(
-            `📢 *FREEZER-MD OFFICIAL CHANNEL*\n\n${CHANNEL_URL}`
-        ).catch(() => {});
+        }
     }
 });
