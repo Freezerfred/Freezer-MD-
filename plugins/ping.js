@@ -3,6 +3,8 @@
 const { sendInteractiveMessage } = require('gifted-btns');
 const { cmd } = require('../arslan');
 
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
 cmd({
     pattern: 'ping',
     name: 'ping',
@@ -13,10 +15,49 @@ cmd({
 }, async (sock, m) => {
 
     try {
+
         const start = Date.now();
 
-        // Real WhatsApp response test
-        const sent = await m.reply('❄️ *FREEZER-MD*');
+        // ─────────────────────────────────────
+        // PING ANIMATION
+        // ─────────────────────────────────────
+
+        const pingMsg = await m.reply(
+            `❄️ *FREEZER-MD*\n\n` +
+            `⏳ *Pinging...*`
+        );
+
+        await sleep(400);
+
+        try {
+            await sock.sendMessage(m.from, {
+                text:
+                    `❄️ *FREEZER-MD*\n\n` +
+                    `📡 *Connecting...*\n` +
+                    `▰▱▱▱▱`
+            }, {
+                quoted: pingMsg
+            });
+        } catch {}
+
+        await sleep(400);
+
+        try {
+            await sock.sendMessage(m.from, {
+                text:
+                    `❄️ *FREEZER-MD*\n\n` +
+                    `⚡ *Measuring latency...*\n` +
+                    `▰▰▰▱▱`
+            }, {
+                quoted: pingMsg
+            });
+        } catch {}
+
+        await sleep(300);
+
+        // ─────────────────────────────────────
+        // REAL RESPONSE TEST
+        // ─────────────────────────────────────
 
         const latency = Date.now() - start;
 
@@ -26,10 +67,20 @@ cmd({
             latency <= 800 ? '🟢 STABLE' :
             '🟡 SLOW';
 
+        // ─────────────────────────────────────
+        // FINAL RESULT
+        // ─────────────────────────────────────
+
         await m.reply(
-            `❄️ *FREEZER-MD*\n\n` +
-            `🏓 *PONG:* ${latency}ms\n` +
-            `📡 *STATUS:* ${status}`
+            `╭━━━〔 ❄️ FREEZER-MD 〕━━━╮
+┃
+┃ 🏓 *PONG!*
+┃
+┃ ⚡ *LATENCY:* ${latency}ms
+┃ 📡 *STATUS:* ${status}
+┃
+╰━━━━━━━━━━━━━━━━━━━━━━
+❄️ *FAST • STABLE • POWERFUL*`
         );
 
         // ─────────────────────────────────────
@@ -38,7 +89,7 @@ cmd({
 
         await sendInteractiveMessage(sock, m.from, {
             title: '❄️ FREEZER-MD',
-            text: 'Get the latest Freezer-MD updates and releases.',
+            text: '📢 Get the latest Freezer-MD updates, releases and announcements.',
             footer: 'FREEZER-MD • BUILT DIFFERENT',
             interactiveButtons: [
                 {
@@ -53,11 +104,15 @@ cmd({
 
     } catch (error) {
 
-        console.error('[FREEZER-MD] Ping Error:', error.message);
+        console.error(
+            '[FREEZER-MD] Ping Error:',
+            error.message
+        );
 
         await m.reply(
             `❄️ *FREEZER-MD*\n\n` +
-            `❌ *Ping failed:* ${error.message}`
+            `❌ *Ping failed*\n` +
+            `┃ ${error.message}`
         );
     }
 });
