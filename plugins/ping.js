@@ -26,7 +26,6 @@ cmd({
 
         const end = process.hrtime.bigint();
 
-        // Convert nanoseconds → milliseconds
         const latency =
             Number(end - start) / 1_000_000;
 
@@ -43,23 +42,23 @@ cmd({
             '🟡 Slow';
 
         // ─────────────────────────────────────
-        // FINAL RESULT — SAME MESSAGE
+        // FINAL RESULT
         // ─────────────────────────────────────
 
         await sock.sendMessage(m.from, {
             text:
-`╭━━━━━━━━━━━━━━━━━━━—————━╮
+`╭━━━━━━━━━━━━━━━━━━━━╮
 ┃ ❄️ *FREEZER-MD*
-┣━━━━━━━━━━━━━━━━—━━—————━━┫
+┣━━━━━━━━━━━━━━━━━━━━┫
 ┃
 ┃ 🏓 *PONG!*
 ┃
 ┃ ⚡ *Response:* ${ms}ms
 ┃ 📡 *Status:* ${status}
 ┃
-┣━━━━━━━━━━━━━━━━——————━━━━┫
+┣━━━━━━━━━━━━━━━━━━━━┫
 ┃ ❄️ *FAST • STABLE • POWERFUL*
-╰━━━━━━━━━━━━━━━━━━━——————━╯`,
+╰━━━━━━━━━━━━━━━━━━━━╯`,
             edit: pingMsg.key
         });
 
