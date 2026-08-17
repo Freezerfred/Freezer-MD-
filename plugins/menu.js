@@ -1,6 +1,7 @@
 'use strict';
 
 const axios = require('axios');
+const { sendInteractiveMessage } = require('gifted-btns');
 
 const { cmd } = require('../arslan');
 
@@ -14,6 +15,13 @@ cmd({
 }, async (sock, m) => {
 
     const prefix = global.BOT_PREFIX || '.';
+
+    // ─────────────────────────────────────────────
+    // FREEZER-MD CHANNEL
+    // ─────────────────────────────────────────────
+
+    const CHANNEL_URL =
+        'https://whatsapp.com/channel/0029Vb87tM1D8SE7qCVjbq3U';
 
     // ─────────────────────────────────────────────
     // DATE & TIME
@@ -41,7 +49,7 @@ cmd({
     // ─────────────────────────────────────────────
 
     const botOwner =
-        global.ownerName || '🥶 Freezer 🥶';
+        global.ownerName || '🥶 FREEZER';
 
     const user =
         m.pushName ||
@@ -141,7 +149,6 @@ cmd({
                 continue;
             }
 
-            // Hidden plugins don't appear in menu
             if (plugin.hidden) {
                 continue;
             }
@@ -238,9 +245,9 @@ ${commandSections}
 
 ${TOP}
 ║
-║ 📢 *𝗢𝗙𝗙𝗜𝗖𝗜𝗔𝗟 𝗙𝗥𝗘𝗘𝗭𝗘𝗥-𝗠𝗗 𝗖𝗛𝗔𝗡𝗡𝗘𝗟*
+║ 📢 *𝗙𝗥𝗘𝗘𝗭𝗘𝗥-𝗠𝗗 𝗢𝗙𝗙𝗜𝗖𝗜𝗔𝗟 𝗖𝗛𝗔𝗡𝗡𝗘𝗟*
 ║
-║ 🔗 https://whatsapp.com/channel/0029Vb87tM1D8SE7qCVjbq3U
+║ 🔗 *Tap the button below*
 ║
 ${BOT}
 
@@ -276,36 +283,82 @@ ${BOT}
         await m.reply(
             imageBuffer,
             {
-                caption: menuText,
+                caption: menuText
+            }
+        );
 
-                contextInfo: {
-                    forwardingScore: 999,
-                    isForwarded: true,
+        // ─────────────────────────────────────────
+        // VIEW CHANNEL BUTTON
+        // ─────────────────────────────────────────
 
-                    forwardedNewsletterMessageInfo: {
-                        newsletterJid:
-                            '120363426778975572@newsletter',
+        await sendInteractiveMessage(
+            sock,
+            m.from,
+            {
+                title: '❄️ FREEZER-MD',
+                text:
+                    'Stay updated with the latest Freezer-MD releases, features and updates.',
+                footer:
+                    'FREEZER-MD • BUILT DIFFERENT ❄️',
 
-                        newsletterName:
-                            '❄️ FREEZER-MD ❄️',
+                interactiveButtons: [
+                    {
+                        name: 'cta_url',
 
-                        serverMessageId: 1
+                        buttonParamsJson:
+                            JSON.stringify({
+                                display_text:
+                                    '📢 View Channel',
+
+                                url:
+                                    CHANNEL_URL
+                            })
                     }
-                }
+                ]
             }
         );
 
     } catch (err) {
 
         console.error(
-            '❌ Freezer-MD menu image error:',
+            '❌ Freezer-MD menu error:',
             err.message
         );
 
-        // Text fallback
+        // ─────────────────────────────────────────
+        // TEXT FALLBACK
+        // ─────────────────────────────────────────
+
         try {
 
             await m.reply(menuText);
+
+            await sendInteractiveMessage(
+                sock,
+                m.from,
+                {
+                    title: '❄️ FREEZER-MD',
+                    text:
+                        'Join the official Freezer-MD channel for updates.',
+                    footer:
+                        'FREEZER-MD',
+
+                    interactiveButtons: [
+                        {
+                            name: 'cta_url',
+
+                            buttonParamsJson:
+                                JSON.stringify({
+                                    display_text:
+                                        '📢 View Channel',
+
+                                    url:
+                                        CHANNEL_URL
+                                })
+                        }
+                    ]
+                }
+            );
 
         } catch (err2) {
 
