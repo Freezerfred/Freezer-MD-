@@ -111,7 +111,7 @@ cmd({
 ┃     ${botName}
 ╰━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
-┏━━━〔 ⚡ PRO PING 〕━━━┓
+┏━━━〔 ⚡ PING 〕━━━┓
 ┃
 ┃ 🏓 *PONG!*
 ┃
@@ -127,22 +127,12 @@ cmd({
 ┃ 📊 SYSTEM STATUS
 ┃ └─ *${status}*
 ┃
-┗━━━━━━━━━━━━━━━━━━━━━━━━━┛
+┗━━━━━━━━━━━━━━━━━━━━┛
 
-┏━━━〔 🖥️ SYSTEM 〕━━━┓
-┃
-┃ 💾 RAM: *${ramUsed} MB*
-┃ 🧠 HEAP: *${heapUsed}/${heapTotal} MB*
-┃ ⚙️ CPU LOAD: *${cpuLoad}*
-┃ ⏱️ UPTIME: *${uptimeText}*
-┃ 🔧 PREFIX: *${prefix}*
-┃
-┗━━━━━━━━━━━━━━━━━━━━━━━━━┛
-
-╭──────────────────────────╮
+╭────────────────────────╮
 │ ❄️ *FREEZER-MD*
 │ 💪 *PRO SYSTEM MONITOR*
-╰──────────────────────────╯
+╰────────────────────────╯
 `.trim();
 
         await sendInteractiveMessage(sock, m.from, {
