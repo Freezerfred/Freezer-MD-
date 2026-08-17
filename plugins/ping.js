@@ -7,25 +7,46 @@ cmd({
     pattern: 'ping',
     name: 'ping',
     category: 'General',
-    description: 'Check Freezer-MD response speed',
+    description: 'Measure real Freezer-MD response speed',
     aliases: ['pong', 'latency'],
     filename: __filename
 }, async (sock, m) => {
 
     try {
 
-        const start = Date.now();
+        // ─────────────────────────────────────
+        // REAL BOT RESPONSE TEST
+        // ─────────────────────────────────────
 
-        const latency = Date.now() - start;
+        const start = process.hrtime.bigint();
+
+        const pingMsg = await sock.sendMessage(m.from, {
+            text: '❄️ *FREEZER-MD* • Checking response...'
+        });
+
+        const end = process.hrtime.bigint();
+
+        // Convert nanoseconds → milliseconds
+        const latency =
+            Number(end - start) / 1_000_000;
+
+        const ms = Math.round(latency);
+
+        // ─────────────────────────────────────
+        // STATUS
+        // ─────────────────────────────────────
 
         const status =
-            latency <= 150 ? '⚡ Excellent' :
-            latency <= 400 ? '🚀 Fast' :
-            latency <= 800 ? '🟢 Stable' :
+            ms <= 150 ? '⚡ Excellent' :
+            ms <= 400 ? '🚀 Fast' :
+            ms <= 800 ? '🟢 Stable' :
             '🟡 Slow';
 
-        await sendInteractiveMessage(sock, m.from, {
-            title: '❄️ FREEZER-MD',
+        // ─────────────────────────────────────
+        // FINAL RESULT — SAME MESSAGE
+        // ─────────────────────────────────────
+
+        await sock.sendMessage(m.from, {
             text:
 `╭━━━━━━━━━━━━━━━━━━━━╮
 ┃ ❄️ *FREEZER-MD*
@@ -33,12 +54,22 @@ cmd({
 ┃
 ┃ 🏓 *PONG!*
 ┃
-┃ ⚡ *Latency:* ${latency}ms
+┃ ⚡ *Response:* ${ms}ms
 ┃ 📡 *Status:* ${status}
 ┃
 ┣━━━━━━━━━━━━━━━━━━━━┫
 ┃ ❄️ *FAST • STABLE • POWERFUL*
 ╰━━━━━━━━━━━━━━━━━━━━╯`,
+            edit: pingMsg.key
+        });
+
+        // ─────────────────────────────────────
+        // VIEW CHANNEL
+        // ─────────────────────────────────────
+
+        await sendInteractiveMessage(sock, m.from, {
+            title: '❄️ FREEZER-MD',
+            text: '📢 Get the latest Freezer-MD updates, releases and announcements.',
             footer: 'FREEZER-MD • BUILT DIFFERENT',
             interactiveButtons: [
                 {
