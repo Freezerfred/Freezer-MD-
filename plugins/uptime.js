@@ -8,29 +8,39 @@ cmd({
     name: 'uptime',
     category: 'General',
     aliases: ['up'],
-    description: 'Check how long the bot has been running.',
+    description: 'Check how long Freezer-MD has been running.',
     filename: __filename
 }, async (sock, m) => {
-        const uptime = process.uptime();
 
-        const hours = Math.floor(uptime / 3600);
-        const minutes = Math.floor((uptime % 3600) / 60);
-        const seconds = Math.floor(uptime % 60);
+    const uptime = process.uptime();
 
-        const formattedTime = `${hours}h ${minutes}m ${seconds}s`;
+    const hours = Math.floor(uptime / 3600);
+    const minutes = Math.floor((uptime % 3600) / 60);
+    const seconds = Math.floor(uptime % 60);
 
-        await sendInteractiveMessage(sock, m.from, {
-            title: '⏱️ BOT UPTIME',
-            text: `The bot has been running for:\n\n*${formattedTime}*`,
-            footer: 'Freezer-MD 🥶',
-            interactiveButtons: [
-                {
-                    name: 'cta_url',
-                    buttonParamsJson: JSON.stringify({
-                        display_text: 'View Channel',
-                        url: 'https://whatsapp.com/channel/0029Vb87tM1D8SE7qCVjbq3U'
-                    })
-                }
-            ]
-        });
+    const formattedTime =
+        `${hours}h ${minutes}m ${seconds}s`;
+
+    await sendInteractiveMessage(sock, m.from, {
+        title: '❄️ FREEZER-MD • UPTIME',
+        text:
+            `╭━━━〔 ❄️ FREEZER-MD 〕━━━╮\n` +
+            `┃\n` +
+            `┃ ⚡ *SYSTEM STATUS*\n` +
+            `┃\n` +
+            `┃ 🟢 Status: Online\n` +
+            `┃ ⏱️ Uptime: *${formattedTime}*\n` +
+            `┃\n` +
+            `╰━━━━━━━━━━━━━━━━━━━━━━╯`,
+        footer: '❄️ Freezer-MD • Advanced WhatsApp Bot',
+        interactiveButtons: [
+            {
+                name: 'cta_url',
+                buttonParamsJson: JSON.stringify({
+                    display_text: '❄️ View Freezer Channel',
+                    url: 'https://whatsapp.com/channel/0029Vb87tM1D8SE7qCVjbq3U'
+                })
+            }
+        ]
     });
+});
