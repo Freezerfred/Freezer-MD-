@@ -2,128 +2,92 @@
 
 const axios = require('axios');
 const { sendInteractiveMessage } = require('gifted-btns');
-
 const { cmd } = require('../arslan');
 
 cmd({
     pattern: 'menu',
     name: 'menu',
     hidden: true,
-    description: 'Show available Freezer-MD commands',
+    description: 'Show Freezer-MD command center',
     aliases: ['help', 'cmdlist', 'commands'],
     filename: __filename
 }, async (sock, m) => {
 
     const prefix = global.BOT_PREFIX || '.';
 
-    // ─────────────────────────────────────────────
-    // FREEZER-MD CHANNEL
-    // ─────────────────────────────────────────────
-
     const CHANNEL_URL =
         'https://whatsapp.com/channel/0029Vb87tM1D8SE7qCVjbq3U';
 
     // ─────────────────────────────────────────────
-    // DATE & TIME
+    // FREEZER-MD INFO
     // ─────────────────────────────────────────────
-
-    const now = new Date();
-
-    const date = now.toLocaleDateString('en-GB', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-        timeZone: 'Africa/Nairobi'
-    });
-
-    const time = now.toLocaleTimeString('en-US', {
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: true,
-        timeZone: 'Africa/Nairobi'
-    });
-
-    // ─────────────────────────────────────────────
-    // BOT INFORMATION
-    // ─────────────────────────────────────────────
-
-    const botOwner =
-        global.ownerName || '🥶 FREEZER';
 
     const user =
         m.pushName ||
         m.sender?.split('@')[0] ||
         'User';
 
-    const uptimeSec = process.uptime();
+    const uptime = process.uptime();
 
-    const uh =
-        Math.floor(uptimeSec / 3600);
+    const hours = Math.floor(uptime / 3600);
+    const minutes = Math.floor((uptime % 3600) / 60);
 
-    const um =
-        Math.floor((uptimeSec % 3600) / 60);
-
-    const us =
-        Math.floor(uptimeSec % 60);
-
-    const uptimeStr =
-        `${uh}h ${um}m ${us}s`;
-
-    const ramStr =
-        `${(
-            process.memoryUsage().rss /
-            1024 /
-            1024
-        ).toFixed(2)}MB`;
+    const uptimeText =
+        `${hours}h ${minutes}m`;
 
     // ─────────────────────────────────────────────
-    // FREEZER-MD DESIGN
+    // MENU CATEGORIES
     // ─────────────────────────────────────────────
 
-    const CAP = '❄️';
+    const MENU_GROUPS = {
+        General: {
+            icon: '⚡',
+            categories: [
+                'General',
+                'Status',
+                'Channel'
+            ]
+        },
 
-    const TOP =
-        `╭──═════════════${CAP}`;
+        Downloads: {
+            icon: '📥',
+            categories: [
+                'Downloaders',
+                'Download',
+                'Media'
+            ]
+        },
 
-    const MID =
-        `╠──═════════════${CAP}`;
+        Tools: {
+            icon: '🛠️',
+            categories: [
+                'Tools',
+                'Utilities'
+            ]
+        },
 
-    const BOT =
-        `╰──═════════════${CAP}`;
+        AI: {
+            icon: '🤖',
+            categories: [
+                'AI'
+            ]
+        },
 
-    // ─────────────────────────────────────────────
-    // COMMAND CATEGORIES
-    // ─────────────────────────────────────────────
+        Group: {
+            icon: '👥',
+            categories: [
+                'Group',
+                'Security'
+            ]
+        },
 
-    const CATEGORY_ORDER = [
-        'General',
-        'Downloaders',
-        'Tools',
-        'AI',
-        'Media',
-        'Fun',
-        'Group',
-        'Security',
-        'Status',
-        'Channel',
-        'Admin',
-        'Owner'
-    ];
-
-    const CATEGORY_ICONS = {
-        General: '⚡',
-        Downloaders: '📥',
-        Tools: '🛠️',
-        AI: '🧠',
-        Media: '🎨',
-        Fun: '🎉',
-        Group: '👥',
-        Security: '🛡️',
-        Status: '📡',
-        Channel: '📢',
-        Admin: '👑',
-        Owner: '🔐'
+        Owner: {
+            icon: '👑',
+            categories: [
+                'Admin',
+                'Owner'
+            ]
+        }
     };
 
     // ─────────────────────────────────────────────
@@ -133,127 +97,96 @@ cmd({
     const grouped = {};
     const seen = new Set();
 
-    let totalPlugins = 0;
-
     if (global.plugins instanceof Map) {
 
-        const uniquePlugins =
-            new Set(global.plugins.values());
+        for (const plugin of new Set(global.plugins.values())) {
 
-        totalPlugins =
-            uniquePlugins.size;
+            if (!plugin?.name) continue;
+            if (plugin.hidden) continue;
 
-        for (const plugin of uniquePlugins) {
+            const commandName =
+                String(plugin.name).toLowerCase();
 
-            if (!plugin || !plugin.name) {
-                continue;
-            }
+            if (seen.has(commandName)) continue;
 
-            if (plugin.hidden) {
-                continue;
-            }
-
-            if (seen.has(plugin.name)) {
-                continue;
-            }
-
-            seen.add(plugin.name);
+            seen.add(commandName);
 
             const category =
                 plugin.category || 'General';
 
-            if (!grouped[category]) {
-                grouped[category] = [];
-            }
+            for (const [menuGroup, data] of Object.entries(MENU_GROUPS)) {
 
-            grouped[category].push(
-                `${prefix}${plugin.name}`
-            );
+                if (data.categories.includes(category)) {
+
+                    if (!grouped[menuGroup]) {
+                        grouped[menuGroup] = [];
+                    }
+
+                    grouped[menuGroup].push(
+                        `${prefix}${plugin.name}`
+                    );
+
+                    break;
+                }
+            }
         }
     }
 
     // ─────────────────────────────────────────────
-    // CATEGORY ORDER
+    // BUILD MENU
     // ─────────────────────────────────────────────
 
-    const allCategories = [
-        ...CATEGORY_ORDER.filter(
-            category => grouped[category]
-        ),
+    const sections = Object.entries(MENU_GROUPS)
+        .map(([group, data]) => {
 
-        ...Object.keys(grouped).filter(
-            category =>
-                !CATEGORY_ORDER.includes(category)
-        )
-    ];
-
-    // ─────────────────────────────────────────────
-    // BUILD MENU SECTIONS
-    // ─────────────────────────────────────────────
-
-    const commandSections =
-        allCategories.map(category => {
-
-            const icon =
-                CATEGORY_ICONS[category] ||
-                '📂';
-
-            const lines =
-                grouped[category]
+            const commands =
+                (grouped[group] || [])
                     .sort((a, b) =>
                         a.localeCompare(b)
-                    )
-                    .map(command =>
-                        `║ ❄️ ${command}`
-                    )
-                    .join('\n');
+                    );
 
-            return `${TOP}
-║ ${icon} *${category.toUpperCase()}*
-${MID}
-║
-${lines}
-║
-${BOT}`;
+            if (!commands.length) return '';
 
-        }).join('\n\n');
+            return (
+                `${data.icon} *${group.toUpperCase()}*\n` +
+                commands
+                    .map(command => `┃ ❄️ ${command}`)
+                    .join('\n')
+            );
+
+        })
+        .filter(Boolean)
+        .join('\n\n');
 
     // ─────────────────────────────────────────────
-    // FREEZER-MD MENU
+    // MENU TEXT
     // ─────────────────────────────────────────────
 
     const menuText = `
-${TOP}
-║
-║ ❄️ *𝗙𝗥𝗘𝗘𝗭𝗘𝗥-𝗠𝗗* ❄️
-║
-║ *𝗔𝗗𝗩𝗔𝗡𝗖𝗘𝗗 𝗪𝗛𝗔𝗧𝗦𝗔𝗣𝗣 𝗕𝗢𝗧*
-${MID}
-║
-║ 👑 𝗢𝗪𝗡𝗘𝗥: ${botOwner}
-║ 🙋 𝗨𝗦𝗘𝗥: ${user}
-║ 🧩 𝗣𝗟𝗨𝗚𝗜𝗡𝗦: ${totalPlugins}
-║ 🚀 𝗨𝗣𝗧𝗜𝗠𝗘: ${uptimeStr}
-║ 📆 𝗗𝗔𝗧𝗘: ${date}
-║ 🕐 𝗧𝗜𝗠𝗘: ${time}
-║ 📊 𝗥𝗔𝗠: ${ramStr}
-║ 🔧 𝗣𝗥𝗘𝗙𝗜𝗫: ${prefix}
-║
-${BOT}
+╭━━━〔 ❄️ FREEZER-MD 〕━━━╮
+┃
+┃ 👋 *Hello, ${user}*
+┃
+┃ 🚀 *ADVANCED WHATSAPP BOT*
+┃ ⚡ *Fast • Stable • Powerful*
+┃
+┃ 🧩 *Commands:* ${seen.size}
+┃ ⏱️ *Uptime:* ${uptimeText}
+┃ 🔧 *Prefix:* ${prefix}
+┃
+╰━━━━━━━━━━━━━━━━━━━━━━
 
-${commandSections}
+${sections}
 
-${TOP}
-║
-║ 📢 *𝗙𝗥𝗘𝗘𝗭𝗘𝗥-𝗠𝗗 𝗢𝗙𝗙𝗜𝗖𝗜𝗔𝗟 𝗖𝗛𝗔𝗡𝗡𝗘𝗟*
-║
-║ 🔗 *Tap the button below*
-║
-${BOT}
+╭━━━〔 📢 OFFICIAL CHANNEL 〕━━━╮
+┃
+┃ Stay updated with
+┃ Freezer-MD releases & updates.
+┃
+╰━━━━━━━━━━━━━━━━━━━━━━
 
-❄️ *𝗙𝗥𝗘𝗘𝗭𝗘𝗥-𝗠𝗗*
-> *𝗣𝗢𝗪𝗘𝗥𝗘𝗗 𝗕𝗬 𝗙𝗥𝗘𝗘𝗭𝗘𝗥*
-> *𝗕𝗨𝗜𝗟𝗧 𝗗𝗜𝗙𝗙𝗘𝗥𝗘𝗡𝗧.*
+❄️ *FREEZER-MD*
+> *BUILT DIFFERENT.*
 `.trim();
 
     // ─────────────────────────────────────────────
@@ -263,33 +196,38 @@ ${BOT}
     try {
 
         if (!global.menuImage) {
-            throw new Error(
-                'global.menuImage is not set'
-            );
+            throw new Error('global.menuImage is not set');
         }
 
-        const imageBuffer =
-            (
-                await axios.get(
-                    global.menuImage,
-                    {
-                        responseType:
-                            'arraybuffer',
-                        timeout: 8000
-                    }
-                )
-            ).data;
+        const imageBuffer = (
+            await axios.get(
+                global.menuImage,
+                {
+                    responseType: 'arraybuffer',
+                    timeout: 8000
+                }
+            )
+        ).data;
 
-        await m.reply(
-            imageBuffer,
-            {
-                caption: menuText
-            }
+        await m.reply(imageBuffer, {
+            caption: menuText
+        });
+
+    } catch (err) {
+
+        console.error(
+            '[FREEZER-MD] Menu image error:',
+            err.message
         );
 
-        // ─────────────────────────────────────────
-        // VIEW CHANNEL BUTTON
-        // ─────────────────────────────────────────
+        await m.reply(menuText);
+    }
+
+    // ─────────────────────────────────────────────
+    // INTERACTIVE BUTTONS
+    // ─────────────────────────────────────────────
+
+    try {
 
         await sendInteractiveMessage(
             sock,
@@ -297,21 +235,72 @@ ${BOT}
             {
                 title: '❄️ FREEZER-MD',
                 text:
-                    'Stay updated with the latest Freezer-MD releases, features and updates.',
+                    'Select a command section or join the official channel.',
                 footer:
-                    'FREEZER-MD • BUILT DIFFERENT ❄️',
+                    'FREEZER-MD • BUILT DIFFERENT',
 
                 interactiveButtons: [
-                    {
-                        name: 'cta_url',
 
+                    {
+                        name: 'quick_reply',
                         buttonParamsJson:
                             JSON.stringify({
-                                display_text:
-                                    '📢 View Channel',
+                                display_text: '⚡ General',
+                                id: `${prefix}help General`
+                            })
+                    },
 
-                                url:
-                                    CHANNEL_URL
+                    {
+                        name: 'quick_reply',
+                        buttonParamsJson:
+                            JSON.stringify({
+                                display_text: '📥 Downloads',
+                                id: `${prefix}help Downloads`
+                            })
+                    },
+
+                    {
+                        name: 'quick_reply',
+                        buttonParamsJson:
+                            JSON.stringify({
+                                display_text: '🛠️ Tools',
+                                id: `${prefix}help Tools`
+                            })
+                    },
+
+                    {
+                        name: 'quick_reply',
+                        buttonParamsJson:
+                            JSON.stringify({
+                                display_text: '🤖 AI',
+                                id: `${prefix}help AI`
+                            })
+                    },
+
+                    {
+                        name: 'quick_reply',
+                        buttonParamsJson:
+                            JSON.stringify({
+                                display_text: '👥 Group',
+                                id: `${prefix}help Group`
+                            })
+                    },
+
+                    {
+                        name: 'quick_reply',
+                        buttonParamsJson:
+                            JSON.stringify({
+                                display_text: '👑 Owner',
+                                id: `${prefix}help Owner`
+                            })
+                    },
+
+                    {
+                        name: 'cta_url',
+                        buttonParamsJson:
+                            JSON.stringify({
+                                display_text: '📢 View Channel',
+                                url: CHANNEL_URL
                             })
                     }
                 ]
@@ -321,51 +310,13 @@ ${BOT}
     } catch (err) {
 
         console.error(
-            '❌ Freezer-MD menu error:',
+            '[FREEZER-MD] Interactive menu error:',
             err.message
         );
 
-        // ─────────────────────────────────────────
-        // TEXT FALLBACK
-        // ─────────────────────────────────────────
-
-        try {
-
-            await m.reply(menuText);
-
-            await sendInteractiveMessage(
-                sock,
-                m.from,
-                {
-                    title: '❄️ FREEZER-MD',
-                    text:
-                        'Join the official Freezer-MD channel for updates.',
-                    footer:
-                        'FREEZER-MD',
-
-                    interactiveButtons: [
-                        {
-                            name: 'cta_url',
-
-                            buttonParamsJson:
-                                JSON.stringify({
-                                    display_text:
-                                        '📢 View Channel',
-
-                                    url:
-                                        CHANNEL_URL
-                                })
-                        }
-                    ]
-                }
-            );
-
-        } catch (err2) {
-
-            console.error(
-                '❌ Freezer-MD menu fallback error:',
-                err2.message
-            );
-        }
+        // Channel link fallback
+        await m.reply(
+            `📢 *FREEZER-MD OFFICIAL CHANNEL*\n\n${CHANNEL_URL}`
+        ).catch(() => {});
     }
 });
