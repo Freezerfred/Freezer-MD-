@@ -3,9 +3,6 @@
 const { sendInteractiveMessage } = require('gifted-btns');
 const { cmd } = require('../arslan');
 
-const sleep = ms =>
-    new Promise(resolve => setTimeout(resolve, ms));
-
 cmd({
     pattern: 'ping',
     name: 'ping',
@@ -19,115 +16,28 @@ cmd({
 
         const start = Date.now();
 
-        // ─────────────────────────────────────
-        // ONE MESSAGE ANIMATION
-        // ─────────────────────────────────────
-
-        const msg = await sock.sendMessage(
-            m.from,
-            {
-                text:
-                    `╭━━━〔 ❄️ FREEZER-MD 〕━━━╮\n` +
-                    `┃\n` +
-                    `┃ ⏳ *Pinging...*\n` +
-                    `┃\n` +
-                    `┃ ▰▱▱▱▱\n` +
-                    `┃\n` +
-                    `╰━━━━━━━━━━━━━━━━━━━━━━╯`
-            },
-            {
-                quoted: m
-            }
-        );
-
-        // Slow stage 1
-        await sleep(1200);
-
-        await sock.sendMessage(
-            m.from,
-            {
-                text:
-                    `╭━━━〔 ❄️ FREEZER-MD 〕━━━╮\n` +
-                    `┃\n` +
-                    `┃ 📡 *Connecting...*\n` +
-                    `┃\n` +
-                    `┃ ▰▰▱▱▱\n` +
-                    `┃\n` +
-                    `╰━━━━━━━━━━━━━━━━━━━━━━╯`
-            },
-            {
-                edit: msg.key
-            }
-        );
-
-        // Slow stage 2
-        await sleep(1200);
-
-        await sock.sendMessage(
-            m.from,
-            {
-                text:
-                    `╭━━━〔 ❄️ FREEZER-MD 〕━━━╮\n` +
-                    `┃\n` +
-                    `┃ ⚡ *Measuring latency...*\n` +
-                    `┃\n` +
-                    `┃ ▰▰▰▰▱\n` +
-                    `┃\n` +
-                    `╰━━━━━━━━━━━━━━━━━━━━━━╯`
-            },
-            {
-                edit: msg.key
-            }
-        );
-
-        // Slow stage 3
-        await sleep(1200);
-
-        // ─────────────────────────────────────
-        // REAL LATENCY
-        // ─────────────────────────────────────
+        await sock.sendPresenceUpdate('composing', m.from);
 
         const latency = Date.now() - start;
 
         const status =
-            latency <= 150
-                ? '⚡ EXCELLENT'
-                : latency <= 400
-                ? '🚀 FAST'
-                : latency <= 800
-                ? '🟢 STABLE'
-                : '🟡 SLOW';
-
-        // ─────────────────────────────────────
-        // FINAL RESULT — SAME MESSAGE
-        // ─────────────────────────────────────
-
-        await sock.sendMessage(
-            m.from,
-            {
-                text:
-                    `╭━━━〔 ❄️ FREEZER-MD 〕━━━╮\n` +
-                    `┃\n` +
-                    `┃ 🏓 *PONG!*\n` +
-                    `┃\n` +
-                    `┃ ⚡ *LATENCY:* ${latency}ms\n` +
-                    `┃ 📡 *STATUS:* ${status}\n` +
-                    `┃\n` +
-                    `╰━━━━━━━━━━━━━━━━━━━━━━╯\n` +
-                    `❄️ *FAST • STABLE • POWERFUL*`
-            },
-            {
-                edit: msg.key
-            }
-        );
-
-        // ─────────────────────────────────────
-        // VIEW CHANNEL
-        // ─────────────────────────────────────
+            latency <= 150 ? '⚡ Excellent' :
+            latency <= 400 ? '🚀 Fast' :
+            latency <= 800 ? '🟢 Stable' :
+            '🟡 Slow';
 
         await sendInteractiveMessage(sock, m.from, {
             title: '❄️ FREEZER-MD',
-            text: '📢 Get the latest Freezer-MD updates, releases and announcements.',
+            text:
+`╭━━━〔 ❄️ FREEZER-MD 〕━━━╮
+┃
+┃ 🏓 *PONG!*
+┃
+┃ ⚡ *Latency:* ${latency}ms
+┃ 📡 *Status:* ${status}
+┃
+╰━━━━━━━━━━━━━━━━━━━━━━╯
+❄️ *FAST • STABLE • POWERFUL*`,
             footer: 'FREEZER-MD • BUILT DIFFERENT',
             interactiveButtons: [
                 {
@@ -142,14 +52,13 @@ cmd({
 
     } catch (error) {
 
-        console.error(
-            '[FREEZER-MD] Ping Error:',
-            error.message
-        );
+        console.error('[FREEZER-MD] Ping Error:', error);
 
         await m.reply(
-            `❄️ *FREEZER-MD*\n\n` +
-            `❌ *Ping failed:* ${error.message}`
+`❄️ *FREEZER-MD*
+
+❌ *Ping failed:*
+${error?.message || 'Unknown error'}`
         );
     }
 });
