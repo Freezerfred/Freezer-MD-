@@ -2,7 +2,7 @@
 <p align="center"><b>A simple, fast and reliable WhatsApp bot.</b></p>
 
 <p align="center">
-  <img src="https://n.uguu.se/HwVMxyFu.jpg" alt="Freezer-MD Banner" width="100%" />
+  <img src="https://i.ibb.co/fY77xvV1/IMG-20260814-WA0000-1.jpg" alt="Freezer-MD Banner" width="100%" />
 </p>
 
 <p align="center">
