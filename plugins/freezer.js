@@ -3,8 +3,8 @@
 const { cmd } = require('../arslan');
 
 cmd({
-    pattern: 'botinfo',
-    name: 'botinfo',
+    pattern: 'freezer',
+    name: 'freezer',
     category: 'General',
     description: 'Display Freezer-MD bot information',
     aliases: ['info', 'about', 'version'],
