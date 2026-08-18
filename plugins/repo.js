@@ -20,7 +20,7 @@ cmd({
         // ─────────────────────────────────────
 
         const repoUrl =
-            'https://github.com/freezermd/Freezer-MD';
+            'https://github.com/Freezerfred/Freezer-MD-.git';
 
         const channelUrl =
             'https://whatsapp.com/channel/0029Vb87tM1D8SE7qCVjbq3U';
