@@ -1,4 +1,8 @@
+```js
 'use strict';
+
+const axios = require('axios');
+const fs = require('fs');
 
 const { cmd } = require('../arslan');
 
@@ -6,101 +10,214 @@ cmd({
     pattern: 'repo',
     name: 'repo',
     category: 'General',
-    description: 'Show Freezer-MD official repository',
-    aliases: ['github', 'source', 'sourcecode', 'sc'],
-    tags: ['main', 'repo', 'github'],
-    command: /^\.?(repo|github|source|sourcecode|sc)$/i,
+    aliases: ['sourcecode', 'script', 'sc', 'github'],
+    description: 'Show live Freezer-MD GitHub information',
     filename: __filename
-}, async (sock, m) => {
+}, async (sock, m, args) => {
+
+    // ─────────────────────────────────────────────
+    // FREEZER-MD REPOSITORY
+    // ─────────────────────────────────────────────
+
+    const REPO_OWNER = 'Freezerfred';
+    const REPO_NAME = 'Freezer-MD-';
+
+    const REPO_URL =
+        `https://github.com/${REPO_OWNER}/${REPO_NAME}`;
+
+    const API_URL =
+        `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}`;
+
+    // ─────────────────────────────────────────────
+    // DEFAULT REPOSITORY DATA
+    // ─────────────────────────────────────────────
+
+    let stats = {
+        description:
+            'A modern WhatsApp bot built on Baileys.',
+
+        stars: '—',
+        forks: '—',
+        watchers: '—',
+        issues: '—',
+        language: 'JavaScript',
+        license: 'MIT',
+        updated: 'N/A',
+        branch: 'main'
+    };
+
+    // ─────────────────────────────────────────────
+    // LIVE GITHUB INFORMATION
+    // ─────────────────────────────────────────────
 
     try {
 
-        // ─────────────────────────────────────
-        // FREEZER-MD INFORMATION
-        // ─────────────────────────────────────
+        const response = await fetch(API_URL, {
+            headers: {
+                'User-Agent': 'Freezer-MD',
+                'Accept': 'application/vnd.github+json'
+            }
+        });
 
-        const repoUrl =
-            'https://github.com/Freezerfred/Freezer-MD-.git';
+        if (response.ok) {
 
-        const channelUrl =
-            'https://whatsapp.com/channel/0029Vb87tM1D8SE7qCVjbq3U';
+            const data = await response.json();
 
-        const owner =
-            global.ownerName || 'Freezer';
+            stats = {
+                description:
+                    data.description ||
+                    stats.description,
 
-        const prefix =
-            global.BOT_PREFIX || '.';
+                stars:
+                    data.stargazers_count ??
+                    stats.stars,
 
-        // ─────────────────────────────────────
-        // REPOSITORY MESSAGE
-        // ─────────────────────────────────────
+                forks:
+                    data.forks_count ??
+                    stats.forks,
 
-        const repoText = `
-╭━━━━━━━━━━━━━━━━━━━━╮
-┃ ❄️ *FREEZER-MD*
-┣━━━━━━━━━━━━━━━━━━━━┫
+                watchers:
+                    data.watchers_count ??
+                    stats.watchers,
+
+                issues:
+                    data.open_issues_count ??
+                    stats.issues,
+
+                language:
+                    data.language ||
+                    stats.language,
+
+                license:
+                    data.license?.spdx_id ||
+                    data.license?.name ||
+                    stats.license,
+
+                updated:
+                    data.pushed_at
+                        ? new Date(
+                            data.pushed_at
+                        ).toLocaleString(
+                            'en-GB',
+                            {
+                                timeZone:
+                                    'Africa/Nairobi'
+                            }
+                        )
+                        : stats.updated,
+
+                branch:
+                    data.default_branch ||
+                    stats.branch
+            };
+        }
+
+    } catch (error) {
+
+        console.error(
+            '[FREEZER-MD] GitHub API Error:',
+            error.message
+        );
+    }
+
+    // ─────────────────────────────────────────────
+    // PROFESSIONAL FREEZER-MD DESIGN
+    // ─────────────────────────────────────────────
+
+    const info =
+`╭━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮
+┃      ❄️ *𝗙𝗥𝗘𝗘𝗭𝗘𝗥-𝗠𝗗* ❄️
+┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫
 ┃
-┃ 🚀 *OFFICIAL REPOSITORY*
+┃ 📦 *SOURCE CODE*
+┃ Freezer-MD
 ┃
-┃ 📦 *Project:* Freezer-MD
-┃ 👑 *Owner:* ${owner}
-┃ 🔧 *Prefix:* ${prefix}
+┃ 📝 *DESCRIPTION*
+┃ ${stats.description}
 ┃
-┣━━━━━━━━━━━━━━━━━━━━┫
+┃ 🔗 *REPOSITORY*
+┃ ${REPO_URL}
 ┃
-┃ 💻 *SOURCE CODE*
-┃ ${repoUrl}
+┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫
 ┃
-┃ 📢 *OFFICIAL CHANNEL*
-┃ ${channelUrl}
+┃ ⭐ *Stars*     : ${stats.stars}
+┃ 🍴 *Forks*     : ${stats.forks}
+┃ 👁️ *Watchers*  : ${stats.watchers}
+┃ 🐛 *Issues*    : ${stats.issues}
+┃ 💻 *Language*  : ${stats.language}
+┃ 📄 *License*   : ${stats.license}
+┃ 🌿 *Branch*    : ${stats.branch}
+┃ 🕒 *Updated*   : ${stats.updated}
 ┃
-╰━━━━━━━━━━━━━━━━━━━━╯
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
-❄️ *FREEZER-MD*
-> *FAST • STABLE • POWERFUL*
-`.trim();
+❄️ *𝗙𝗥𝗘𝗘𝗭𝗘𝗥-𝗠𝗗*
+> *𝗙𝗔𝗦𝗧 • 𝗦𝗧𝗔𝗕𝗟𝗘 • 𝗣𝗢𝗪𝗘𝗥𝗙𝗨𝗟*
+> *𝗕𝗨𝗜𝗟𝗧 𝗗𝗜𝗙𝗙𝗘𝗥𝗘𝗡𝗧.*`;
 
-        // ─────────────────────────────────────
-        // SEND REPOSITORY
-        // ─────────────────────────────────────
+    // ─────────────────────────────────────────────
+    // SEND REPOSITORY IMAGE
+    // ─────────────────────────────────────────────
 
-        await sock.sendMessage(
-            m.from,
+    try {
+
+        if (!global.menuImage) {
+            throw new Error(
+                'global.menuImage is not set'
+            );
+        }
+
+        const imageBuffer =
+            /^https?:\/\//i.test(
+                global.menuImage
+            )
+
+                ? (
+                    await axios.get(
+                        global.menuImage,
+                        {
+                            responseType:
+                                'arraybuffer',
+                            timeout: 8000
+                        }
+                    )
+                ).data
+
+                : fs.readFileSync(
+                    global.menuImage
+                );
+
+        await m.reply(
+            imageBuffer,
             {
-                text: repoText,
-                contextInfo: {
-                    externalAdReply: {
-                        title: '❄️ FREEZER-MD',
-                        body: 'FAST • STABLE • POWERFUL',
-                        sourceUrl: repoUrl,
-                        mediaType: 1,
-                        renderLargerThumbnail: false
-                    }
-                }
-            },
-            {
-                quoted: m
+                caption: info
             }
         );
 
-    } catch (err) {
+    } catch (error) {
 
         console.error(
-            '[FREEZER-MD] Repo Error:',
-            err
+            '[FREEZER-MD] Repo image error:',
+            error.message
         );
 
-        await m.reply(
-`╭━━━━━━━━━━━━━━━━━━━━╮
-┃ ❄️ *FREEZER-MD*
-┣━━━━━━━━━━━━━━━━━━━━┫
-┃
-┃ 🔴 *REPOSITORY ERROR*
-┃
-┃ Unable to load repository
-┃ information right now.
-┃
-╰━━━━━━━━━━━━━━━━━━━━╯`
-        );
+        // Text fallback
+        try {
+
+            await sock.sendMessage(
+                m.from,
+                {
+                    text: info
+                }
+            );
+
+        } catch (fallbackError) {
+
+            console.error(
+                '[FREEZER-MD] Repo fallback error:',
+                fallbackError.message
+            );
+        }
     }
 });
+```
