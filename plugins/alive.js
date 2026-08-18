@@ -1,9 +1,10 @@
+```js
 'use strict';
 
 const { cmd } = require('../arslan');
 
 cmd({
-    pattern: "alive",
+    pattern: 'alive',
     name: 'alive',
     category: 'General',
     description: 'Check Freezer-MD system status',
@@ -14,15 +15,14 @@ cmd({
 }, async (sock, m) => {
 
     try {
-        // ─────────────────────────────────────
-        // FREEZER-MD SYSTEM INFORMATION
-        // ─────────────────────────────────────
 
         const prefix = global.BOT_PREFIX || '.';
-        const owner = global.ownerName || '🥶 Freezer 🥶';
-        const botName = '❄️ FREEZER-MD ❄️';
+        const owner = global.ownerName || 'Freezer';
 
-        // Uptime
+        // ─────────────────────────────────────
+        // UPTIME
+        // ─────────────────────────────────────
+
         const uptimeSec = Math.floor(process.uptime());
 
         const days = Math.floor(uptimeSec / 86400);
@@ -37,99 +37,123 @@ cmd({
             `${seconds}s`
         ].filter(Boolean).join(' ');
 
-        // Memory
-        const memory = process.memoryUsage();
-        const ram = `${(memory.rss / 1024 / 1024).toFixed(2)} MB`;
+        // ─────────────────────────────────────
+        // MEMORY
+        // ─────────────────────────────────────
 
-        // Plugins
+        const memory = process.memoryUsage();
+        const ram =
+            `${(memory.rss / 1024 / 1024).toFixed(1)} MB`;
+
+        // ─────────────────────────────────────
+        // PLUGINS
+        // ─────────────────────────────────────
+
         let pluginCount = 0;
 
         if (global.plugins instanceof Map) {
-            const uniquePlugins = new Set();
 
-            for (const plugin of global.plugins.values()) {
-                if (plugin && typeof plugin === 'object') {
-                    uniquePlugins.add(plugin);
-                }
-            }
-
-            pluginCount = uniquePlugins.size;
+            pluginCount =
+                new Set(
+                    [...global.plugins.values()]
+                        .filter(Boolean)
+                ).size;
         }
 
-        // Node version
-        const nodeVersion = process.version;
+        // ─────────────────────────────────────
+        // REAL RESPONSE TEST
+        // ─────────────────────────────────────
 
-        // Platform
-        const platform = process.platform;
+        const start = process.hrtime.bigint();
 
-        // Response time
-        const start = Date.now();
+        const sent = await sock.sendMessage(
+            m.from,
+            {
+                text: '❄️ *FREEZER-MD*'
+            }
+        );
+
+        const end = process.hrtime.bigint();
+
+        const response =
+            Math.max(
+                1,
+                Math.round(
+                    Number(end - start) / 1_000_000
+                )
+            );
 
         // ─────────────────────────────────────
-        // ALIVE MESSAGE
+        // STATUS
+        // ─────────────────────────────────────
+
+        const status =
+            response <= 150
+                ? '⚡ Excellent'
+                : response <= 400
+                    ? '🚀 Fast'
+                    : response <= 800
+                        ? '🟢 Stable'
+                        : '🟡 Slow';
+
+        // ─────────────────────────────────────
+        // EDIT TEST MESSAGE
         // ─────────────────────────────────────
 
         const aliveText = `
-╭━━━〔 ${botName} 〕━━━╮
+╭━━━━━━━━━━━━━━━━━━━━╮
+┃ ❄️ *FREEZER-MD*
+┣━━━━━━━━━━━━━━━━━━━━┫
 ┃
-┃ 🟢 *SYSTEM ONLINE*
+┃ 🟢 *ONLINE*
+┃ ⚡ *Response:* ${response}ms
+┃ 📡 *Status:* ${status}
+┃ 🚀 *Uptime:* ${uptime}
+┃ 💾 *RAM:* ${ram}
+┃ 🧩 *Plugins:* ${pluginCount}
+┃ 🔧 *Prefix:* ${prefix}
 ┃
-┃ ⚡ *RESPONSE*
-┃ └─ ${Date.now() - start}ms
-┃
-┃ 🚀 *UPTIME*
-┃ └─ ${uptime}
-┃
-┃ 💾 *MEMORY*
-┃ └─ ${ram}
-┃
-┃ 🧩 *PLUGINS*
-┃ └─ ${pluginCount}
-┃
-┃ 👑 *OWNER*
-┃ └─ ${owner}
-┃
-┃ 🟦 *NODE.JS*
-┃ └─ ${nodeVersion}
-┃
-┃ 📱 *PLATFORM*
-┃ └─ ${platform}
-┃
-┃ ⚙️ *PREFIX*
-┃ └─ ${prefix}
-┃
-╰━━━━━━━━━━━━━━━━━━━━━━╯
+╰━━━━━━━━━━━━━━━━━━━━╯
 
 ❄️ *FREEZER-MD*
-> *POWERED BY ADVANCED TECHNOLOGY*
+> *FAST • STABLE • POWERFUL*
 `.trim();
 
-        // ─────────────────────────────────────
-        // SEND RESPONSE
-        // ─────────────────────────────────────
+        try {
 
-        await m.reply(aliveText);
+            await sock.sendMessage(
+                m.from,
+                {
+                    text: aliveText,
+                    edit: sent.key
+                }
+            );
+
+        } catch {
+
+            // If message editing isn't supported,
+            // send the final result normally.
+            await m.reply(aliveText);
+        }
 
     } catch (err) {
 
-        console.error('[FREEZER-MD] Alive Error:', err);
+        console.error(
+            '[FREEZER-MD] Alive Error:',
+            err
+        );
 
-        // Safe fallback — never crash the command
-        try {
-            await m.reply(
-                `╭━━━〔 ❄️ FREEZER-MD 〕━━━╮
+        await m.reply(
+`╭━━━━━━━━━━━━━━━━━━━━╮
+┃ ❄️ *FREEZER-MD*
+┣━━━━━━━━━━━━━━━━━━━━┫
 ┃
-┃ ❌ *SYSTEM CHECK FAILED*
+┃ 🔴 *SYSTEM CHECK FAILED*
 ┃
-┃ ${err?.message || 'Unknown system error'}
+┃ ${err?.message || 'Unable to check system status.'}
 ┃
-╰━━━━━━━━━━━━━━━━━━━━━━╯`
-            );
-        } catch (fallbackError) {
-            console.error(
-                '[FREEZER-MD] Alive fallback error:',
-                fallbackError
-            );
-        }
+╰━━━━━━━━━━━━━━━━━━━━╯`
+        );
     }
 });
+```
