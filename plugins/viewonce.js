@@ -1,186 +1,125 @@
 'use strict';
 
-const {
-    downloadContentFromMessage
-} = require('@whiskeysockets/baileys');
-
 const { cmd } = require('../arslan');
 
 cmd({
     pattern: 'viewonce',
     name: 'viewonce',
     category: 'Tools',
-    aliases: ['vv', 'vo', 'view'],
-    description: 'Retrieve quoted view-once images or videos',
+    description: 'Save view-once media',
+    aliases: ['vo', 'once'],
+    tags: ['tools'],
+    command: /^\.?(viewonce|vo|once)$/i,
     filename: __filename
 }, async (sock, m) => {
 
     try {
-
-        // ─────────────────────────────────────────
-        // CHECK QUOTED MESSAGE
-        // ─────────────────────────────────────────
-
-        const quoted =
-            m.quoted ||
-            m.message?.extendedTextMessage?.contextInfo?.quotedMessage;
-
-        if (!quoted) {
+        if (!m.quoted) {
             return m.reply(
-                `╭━━━━━━━━━━━━━━━━━━━━╮
-┃ ❄️ *FREEZER-MD*
-┣━━━━━━━━━━━━━━━━━━━━┫
-┃
-┃ ❌ *No quoted message*
-┃
-┃ Reply to a view-once
-┃ image or video with:
-┃
-┃ ➜ *.viewonce*
-┃
-╰━━━━━━━━━━━━━━━━━━━━╯`
+                '╭━━〔 🥶 FREEZER-MD 〕━━╮\n' +
+                '┃\n' +
+                '┃ ❌ Reply to a view-once\n' +
+                '┃    image, video or audio.\n' +
+                '┃\n' +
+                '╰━━━━━━━━━━━━━━━━━━╯'
             );
         }
 
-        // ─────────────────────────────────────────
-        // FIND VIEW-ONCE MESSAGE
-        // ─────────────────────────────────────────
+        const target = m.quoted;
+        let media;
+        let type;
+        let mime;
 
-        let message =
-            quoted.message ||
-            quoted;
+        if (target.message?.imageMessage) {
+            type = 'image';
+            mime = target.message.imageMessage.mimetype || 'image/jpeg';
+            media = await target.download();
 
-        if (message.ephemeralMessage) {
-            message = message.ephemeralMessage.message;
-        }
+        } else if (target.message?.videoMessage) {
+            type = 'video';
+            mime = target.message.videoMessage.mimetype || 'video/mp4';
+            media = await target.download();
 
-        const viewOnce =
-            message.viewOnceMessageV2?.message ||
-            message.viewOnceMessage?.message ||
-            message.viewOnceMessageV2Extension?.message;
+        } else if (target.message?.audioMessage) {
+            type = 'audio';
+            mime = target.message.audioMessage.mimetype || 'audio/ogg';
+            media = await target.download();
 
-        if (!viewOnce) {
+        } else {
             return m.reply(
-                `╭━━━━━━━━━━━━━━━━━━━━╮
-┃ ❄️ *FREEZER-MD*
-┣━━━━━━━━━━━━━━━━━━━━┫
-┃
-┃ ❌ *Not a view-once*
-┃
-┃ Reply directly to a
-┃ view-once image/video.
-┃
-╰━━━━━━━━━━━━━━━━━━━━╯`
+                '╭━━〔 🥶 FREEZER-MD 〕━━╮\n' +
+                '┃\n' +
+                '┃ ❌ Unsupported media.\n' +
+                '┃\n' +
+                '┃ Supported:\n' +
+                '┃ • 🖼️ Image\n' +
+                '┃ • 🎥 Video\n' +
+                '┃ • 🎵 Audio\n' +
+                '┃\n' +
+                '╰━━━━━━━━━━━━━━━━━━╯'
             );
         }
 
-        // ─────────────────────────────────────────
-        // IMAGE
-        // ─────────────────────────────────────────
-
-        if (viewOnce.imageMessage) {
-
-            const image =
-                viewOnce.imageMessage;
-
-            const stream =
-                await downloadContentFromMessage(
-                    image,
-                    'image'
-                );
-
-            const chunks = [];
-
-            for await (const chunk of stream) {
-                chunks.push(chunk);
-            }
-
-            const buffer =
-                Buffer.concat(chunks);
-
-            return await sock.sendMessage(
-                m.from,
-                {
-                    image: buffer,
-                    caption:
-                        image.caption ||
-                        '❄️ *FREEZER-MD • VIEW ONCE*'
-                }
-            );
+        if (!media) {
+            throw new Error('Media download failed');
         }
 
-        // ─────────────────────────────────────────
-        // VIDEO
-        // ─────────────────────────────────────────
-
-        if (viewOnce.videoMessage) {
-
-            const video =
-                viewOnce.videoMessage;
-
-            const stream =
-                await downloadContentFromMessage(
-                    video,
-                    'video'
-                );
-
-            const chunks = [];
-
-            for await (const chunk of stream) {
-                chunks.push(chunk);
-            }
-
-            const buffer =
-                Buffer.concat(chunks);
-
-            return await sock.sendMessage(
-                m.from,
-                {
-                    video: buffer,
-                    caption:
-                        video.caption ||
-                        '❄️ *FREEZER-MD • VIEW ONCE*'
-                }
-            );
-        }
-
-        // ─────────────────────────────────────────
-        // UNSUPPORTED MEDIA
-        // ─────────────────────────────────────────
-
-        return m.reply(
-            `╭━━━━━━━━━━━━━━━━━━━━╮
-┃ ❄️ *FREEZER-MD*
-┣━━━━━━━━━━━━━━━━━━━━┫
-┃
-┃ ⚠️ *Unsupported media*
-┃
-┃ Only view-once images
-┃ and videos are supported.
-┃
-╰━━━━━━━━━━━━━━━━━━━━╯`
+        await m.reply(
+            '╭━━〔 🥶 FREEZER-MD 〕━━╮\n' +
+            '┃\n' +
+            '┃ ⏳ Processing media...\n' +
+            '┃ 📦 Type: ' + type.toUpperCase() + '\n' +
+            '┃\n' +
+            '╰━━━━━━━━━━━━━━━━━━╯'
         );
+
+        const caption =
+            '╭━━〔 🥶 FREEZER-MD 〕━━╮\n' +
+            '┃\n' +
+            '┃ ✅ VIEW-ONCE SAVED\n' +
+            '┃\n' +
+            '┃ 📦 Type: ' + type.toUpperCase() + '\n' +
+            '┃ 🔐 Protected by Freezer-MD\n' +
+            '┃\n' +
+            '╰━━━━━━━━━━━━━━━━━━╯';
+
+        if (type === 'image') {
+            await sock.sendMessage(m.from, {
+                image: media,
+                mimetype: mime,
+                caption
+            });
+
+        } else if (type === 'video') {
+            await sock.sendMessage(m.from, {
+                video: media,
+                mimetype: mime,
+                caption
+            });
+
+        } else {
+            await sock.sendMessage(m.from, {
+                audio: media,
+                mimetype: mime,
+                ptt: false
+            });
+        }
 
     } catch (error) {
 
-        console.error(
-            '[FREEZER-MD] ViewOnce Error:',
-            error
-        );
+        console.error('Freezer-MD ViewOnce Error:', error);
 
-        return m.reply(
-            `╭━━━━━━━━━━━━━━━━━━━━╮
-┃ ❄️ *FREEZER-MD*
-┣━━━━━━━━━━━━━━━━━━━━┫
-┃
-┃ ❌ *VIEW ONCE FAILED*
-┃
-┃ Unable to retrieve
-┃ the media.
-┃
-┃ ${error?.message || 'Unknown error'}
-┃
-╰━━━━━━━━━━━━━━━━━━━━╯`
+        await m.reply(
+            '╭━━〔 🥶 FREEZER-MD 〕━━╮\n' +
+            '┃\n' +
+            '┃ ❌ DOWNLOAD FAILED\n' +
+            '┃\n' +
+            '┃ Something went wrong while\n' +
+            '┃ processing the media.\n' +
+            '┃\n' +
+            '┃ 🔄 Try again.\n' +
+            '┃\n' +
+            '╰━━━━━━━━━━━━━━━━━━╯'
         );
     }
 });
