@@ -2,7 +2,6 @@
 
 const axios = require('axios');
 const fs = require('fs');
-const { sendInteractiveMessage } = require('gifted-btns');
 
 const { cmd } = require('../arslan');
 
@@ -207,8 +206,6 @@ ${TOP}
 ┃
 ┃ ❄️ *𝗙𝗥𝗘𝗘𝗭𝗘𝗥-𝗠𝗗* ❄️
 ┃
-┃ *𝗔𝗗𝗩𝗔𝗡𝗖𝗘𝗗 𝗪𝗛𝗔𝗧𝗦𝗔𝗣𝗣 𝗕𝗢𝗧*
-┃
 ${MID}
 ┃ 👑 *Owner:* ${botOwner}
 ┃ 👤 *User:* ${user}
@@ -221,15 +218,6 @@ ${MID}
 ${BOT}
 
 ${commandSections}
-
-${TOP}
-┃
-┃ 📢 *OFFICIAL CHANNEL*
-┃
-┃ ❄️ Freezer-MD Updates
-┃ 🚀 Releases • News • Features
-┃
-${BOT}
 
 ❄️ *𝗙𝗥𝗘𝗘𝗭𝗘𝗥-𝗠𝗗*
 > *𝗙𝗔𝗦𝗧 • 𝗦𝗧𝗔𝗕𝗟𝗘 • 𝗣𝗢𝗪𝗘𝗥𝗙𝗨𝗟*
@@ -277,38 +265,7 @@ ${BOT}
             }
         );
 
-        // ─────────────────────────────────────────
-        // VIEW CHANNEL
-        // ─────────────────────────────────────────
-
-        await sendInteractiveMessage(
-            sock,
-            m.from,
-            {
-                title: '❄️ FREEZER-MD',
-                text:
-                    '📢 Stay connected with Freezer-MD for updates, releases and new features.',
-                footer:
-                    '❄️ FREEZER-MD • BUILT DIFFERENT',
-                interactiveButtons: [
-                    {
-                        name: 'cta_url',
-                        buttonParamsJson:
-                            JSON.stringify({
-                                display_text:
-                                    '📢 View Channel',
-                                url:
-                                    'https://whatsapp.com/channel/0029Vb87tM1D8SE7qCVjbq3U'
-                            })
-                    }
-                ]
-            }
-        );
-
     } catch (error) {
-
-        // No text fallback.
-        // Menu errors are logged only.
 
         console.error(
             '❄️ Freezer-MD Menu Error:',
