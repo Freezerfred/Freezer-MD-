@@ -25,3 +25,4 @@ global.channelName =
 
 
 FOOTBALL_API_KEY=f0f7e35e9577e6b3eedf5d15d6948efc
+FOOTBALL_API_URL=https://v3.football.api-sports.io
