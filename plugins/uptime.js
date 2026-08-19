@@ -17,12 +17,15 @@ function formatUptime(seconds) {
     const minutes = Math.floor(seconds / 60);
     seconds %= 60;
 
-    return [
-        days ? `${days}d` : null,
-        hours ? `${hours}h` : null,
-        minutes ? `${minutes}m` : null,
-        `${seconds}s`
-    ].filter(Boolean).join(' ');
+    const parts = [];
+
+    if (days) parts.push(`${days}d`);
+    if (hours || days) parts.push(`${hours}h`);
+    if (minutes || hours || days) parts.push(`${minutes}m`);
+
+    parts.push(`${seconds}s`);
+
+    return parts.join(' ');
 }
 
 cmd({
@@ -35,44 +38,58 @@ cmd({
 }, async (sock, m) => {
 
     try {
-        const uptime = formatUptime(process.uptime());
 
-        const memory =
-            (process.memoryUsage().rss / 1024 / 1024).toFixed(1);
+        const uptime = process.uptime();
+        const formattedUptime = formatUptime(uptime);
 
-        await sendInteractiveMessage(sock, m.from, {
+        const memory = process.memoryUsage();
+        const memoryMB =
+            (memory.rss / 1024 / 1024).toFixed(1);
 
-            title: '🥶 FREEZER-MD • UPTIME',
+        const nodeVersion =
+            process.version;
 
-            text:
-`╭──────────────────────────╮
-│      🥶 *FREEZER-MD*      │
-├──────────────────────────┤
-│ ⚡ *SYSTEM STATUS*        │
-│                          │
-│ 🟢 Status   : *ONLINE*   │
-│ ⏱️ Uptime   : *${uptime}* │
-│ 🧠 RAM      : *${memory} MB*
-│ ⚙️ Runtime  : *Node.js*  │
-│                          │
-│ ❄️ Engine   : *FREEZER*  │
-│ 🔐 Security : *ACTIVE*   │
-├──────────────────────────┤
-│ 🥶 *RUNNING SMOOTHLY*    │
-╰──────────────────────────╯`,
+        await sendInteractiveMessage(
+            sock,
+            m.from,
+            {
+                title: '🥶 FREEZER-MD • SYSTEM UPTIME',
 
-            footer: '🥶 Freezer-MD • Advanced WhatsApp Bot',
+                text:
+                    `╭━━━〔 🥶 FREEZER-MD 〕━━━╮\n` +
+                    `┃\n` +
+                    `┃ ⚡ *SYSTEM STATUS*\n` +
+                    `┃\n` +
+                    `┃ 🟢 Status   : *ONLINE*\n` +
+                    `┃ ⏱️ Uptime   : *${formattedUptime}*\n` +
+                    `┃ 🧠 RAM      : *${memoryMB} MB*\n` +
+                    `┃ 🟢 Runtime  : *Node ${nodeVersion}*\n` +
+                    `┃\n` +
+                    `┃ ❄️ Engine   : *FREEZER-MD*\n` +
+                    `┃ 🔐 Security : *Protected*\n` +
+                    `┃\n` +
+                    `╰━━━━━━━━━━━━━━━━━━━━━━╯\n\n` +
+                    `🥶 *FREEZER-MD IS RUNNING SMOOTHLY*`,
 
-            interactiveButtons: [
-                {
-                    name: 'cta_url',
-                    buttonParamsJson: JSON.stringify({
-                        display_text: '🥶 View Freezer Channel',
-                        url: 'https://whatsapp.com/channel/0029Vb87tM1D8SE7qCVjbq3U'
-                    })
-                }
-            ]
-        });
+                footer:
+                    '🥶 Freezer-MD • Advanced WhatsApp Bot',
+
+                interactiveButtons: [
+                    {
+                        name: 'cta_url',
+
+                        buttonParamsJson:
+                            JSON.stringify({
+                                display_text:
+                                    '🥶 View Freezer Channel',
+
+                                url:
+                                    'https://whatsapp.com/channel/0029Vb87tM1D8SE7qCVjbq3U'
+                            })
+                    }
+                ]
+            }
+        );
 
     } catch (error) {
 
@@ -82,12 +99,9 @@ cmd({
         );
 
         await m.reply(
-`╭──────────────────────────╮
-│      🥶 *FREEZER-MD*      │
-├──────────────────────────┤
-│ 🟢 Status : *ONLINE*     │
-│ ⏱️ Uptime : *${formatUptime(process.uptime())}*
-╰──────────────────────────╯`
+            `🥶 *FREEZER-MD*\n\n` +
+            `🟢 Status: *ONLINE*\n` +
+            `⏱️ Uptime: *${formatUptime(process.uptime())}*`
         );
     }
 });
