@@ -23,8 +23,8 @@ cmd({
     const now = new Date();
 
     const date = now.toLocaleDateString('en-GB', {
-        day: 'numeric',
-        month: 'long',
+        day: '2-digit',
+        month: 'short',
         year: 'numeric',
         timeZone: 'Africa/Nairobi'
     });
@@ -68,20 +68,20 @@ cmd({
             process.memoryUsage().rss /
             1024 /
             1024
-        ).toFixed(2)}MB`;
+        ).toFixed(2)} MB`;
 
     // ─────────────────────────────────────────────
     // FREEZER-MD DESIGN
     // ─────────────────────────────────────────────
 
     const TOP =
-        '╭━━━━━━━━━━━━━━━━━━━━╮';
+        '╭──────────────────────╮';
 
     const MID =
-        '┣━━━━━━━━━━━━━━━━━━━━┫';
+        '├──────────────────────┤';
 
     const BOT =
-        '╰━━━━━━━━━━━━━━━━━━━━╯';
+        '╰──────────────────────╯';
 
     // ─────────────────────────────────────────────
     // CATEGORIES
@@ -125,12 +125,13 @@ cmd({
         const uniquePlugins =
             new Set(global.plugins.values());
 
-        totalPlugins =
-            uniquePlugins.size;
-
         for (const plugin of uniquePlugins) {
 
-            if (!plugin || !plugin.name) {
+            if (!plugin || typeof plugin !== 'object') {
+                continue;
+            }
+
+            if (!plugin.name) {
                 continue;
             }
 
@@ -138,24 +139,54 @@ cmd({
                 continue;
             }
 
-            if (seen.has(plugin.name)) {
+            const commandName =
+                String(plugin.name)
+                    .trim()
+                    .toLowerCase();
+
+            if (!commandName) {
                 continue;
             }
 
-            seen.add(plugin.name);
+            if (seen.has(commandName)) {
+                continue;
+            }
 
-            const category =
-                plugin.category || 'General';
+            seen.add(commandName);
+
+            let category =
+                String(
+                    plugin.category || 'General'
+                ).trim();
+
+            const matchedCategory =
+                CATEGORY_ORDER.find(
+                    item =>
+                        item.toLowerCase() ===
+                        category.toLowerCase()
+                );
+
+            category =
+                matchedCategory || category;
 
             if (!grouped[category]) {
                 grouped[category] = [];
             }
 
             grouped[category].push(
-                `${prefix}${plugin.name}`
+                `${prefix}${commandName}`
             );
+
+            totalPlugins++;
         }
     }
+
+    // ─────────────────────────────────────────────
+    // CATEGORY COUNT
+    // ─────────────────────────────────────────────
+
+    const categoryCount =
+        Object.keys(grouped).length;
 
     // ─────────────────────────────────────────────
     // BUILD CATEGORIES
@@ -163,12 +194,15 @@ cmd({
 
     const allCategories = [
         ...CATEGORY_ORDER.filter(
-            category => grouped[category]
+            category =>
+                grouped[category] &&
+                grouped[category].length > 0
         ),
 
         ...Object.keys(grouped).filter(
             category =>
-                !CATEGORY_ORDER.includes(category)
+                !CATEGORY_ORDER.includes(category) &&
+                grouped[category]?.length > 0
         )
     ];
 
@@ -181,49 +215,77 @@ cmd({
             const commands =
                 grouped[category]
                     .sort((a, b) =>
-                        a.localeCompare(b)
+                        a.localeCompare(
+                            b,
+                            undefined,
+                            {
+                                sensitivity: 'base'
+                            }
+                        )
                     )
                     .map(command =>
-                        `┃ ❄️ ${command}`
+                        `│  ${command}`
                     )
                     .join('\n');
 
             return `
-${TOP}
-┃ ${icon} *${category.toUpperCase()}*
-${MID}
+┌─ ${icon} *${category.toUpperCase()}*
 ${commands}
-${BOT}`;
+└──────────────────────`;
 
         }).join('\n');
 
     // ─────────────────────────────────────────────
-    // MENU
+    // PREMIUM MENU
     // ─────────────────────────────────────────────
 
     const menuText = `
-${TOP}
-┃ ❄️ *𝗙𝗥𝗘𝗘𝗭𝗘𝗥-𝗠𝗗* ❄️
-${MID}
-┃ 👑 *Owner:* ${botOwner}
-┃ 👤 *User:* ${user}
-┃ 🧩 *Plugins:* ${totalPlugins}
-┃ ⚡ *Uptime:* ${uptimeStr}
-┃ 📅 *Date:* ${date}
-┃ 🕐 *Time:* ${time}
-┃ 📊 *RAM:* ${ramStr}
-┃ 🔧 *Prefix:* ${prefix}
-${BOT}
+╭━━━━━━━━━━━━━━━━━━━━━━╮
+┃   ❄️ *𝗙𝗥𝗘𝗘𝗭𝗘𝗥-𝗠𝗗* ❄️
+┃     *MULTI DEVICE*
+╰━━━━━━━━━━━━━━━━━━━━━━╯
+
+╭─〔 👤 *PROFILE* 〕
+│
+│  👑 Owner   : ${botOwner}
+│  👤 User    : ${user}
+│  🔧 Prefix  : ${prefix}
+│
+╰──────────────────────
+
+╭─〔 ⚙️ *SYSTEM STATUS* 〕
+│
+│  🟢 Status   : ONLINE
+│  ⚡ Uptime   : ${uptimeStr}
+│  💾 Memory   : ${ramStr}
+│  📅 Date     : ${date}
+│  🕐 Time     : ${time}
+│
+╰──────────────────────
+
+╭─〔 📊 *BOT OVERVIEW* 〕
+│
+│  🧩 Commands : ${totalPlugins}
+│  📂 Categories: ${categoryCount}
+│  📡 Platform  : WhatsApp
+│  🚀 Engine    : Freezer-MD
+│
+╰──────────────────────
 
 ${commandSections}
 
-❄️ *𝗙𝗥𝗘𝗘𝗭𝗘𝗥-𝗠𝗗*
-> *𝗙𝗔𝗦𝗧 • 𝗦𝗧𝗔𝗕𝗟𝗘 • 𝗣𝗢𝗪𝗘𝗥𝗙𝗨𝗟*
-> *𝗕𝗨𝗜𝗟𝗧 𝗗𝗜𝗙𝗙𝗘𝗥𝗘𝗡𝗧.*
+╭━━━━━━━━━━━━━━━━━━━━━━╮
+┃ ❄️ *FREEZER-MD*
+┃
+┃ ⚡ Fast   •   Stable
+┃ 🛡️ Secure •   Powerful
+┃
+┃ *BUILT DIFFERENT.*
+╰━━━━━━━━━━━━━━━━━━━━━━╯
 `.trim();
 
     // ─────────────────────────────────────────────
-    // MENU IMAGE — REQUIRED
+    // MENU IMAGE
     // ─────────────────────────────────────────────
 
     try {
@@ -234,26 +296,48 @@ ${commandSections}
             );
         }
 
-        const imageBuffer =
+        let imageBuffer;
+
+        if (
+            typeof global.menuImage === 'string' &&
             /^https?:\/\//i.test(global.menuImage)
+        ) {
 
-                ? (
-                    await axios.get(
-                        global.menuImage,
-                        {
-                            responseType:
-                                'arraybuffer',
-                            timeout: 10000
-                        }
-                    )
-                ).data
-
-                : fs.readFileSync(
-                    global.menuImage
+            const response =
+                await axios.get(
+                    global.menuImage,
+                    {
+                        responseType: 'arraybuffer',
+                        timeout: 10000,
+                        maxContentLength:
+                            10 * 1024 * 1024,
+                        maxBodyLength:
+                            10 * 1024 * 1024
+                    }
                 );
 
+            imageBuffer =
+                Buffer.from(response.data);
+
+        } else {
+
+            if (
+                typeof global.menuImage !== 'string' ||
+                !fs.existsSync(global.menuImage)
+            ) {
+                throw new Error(
+                    'Menu image file not found'
+                );
+            }
+
+            imageBuffer =
+                fs.readFileSync(
+                    global.menuImage
+                );
+        }
+
         // ─────────────────────────────────────────
-        // SEND MENU IMAGE
+        // SEND PREMIUM MENU
         // ─────────────────────────────────────────
 
         await m.reply(
@@ -269,5 +353,20 @@ ${commandSections}
             '❄️ Freezer-MD Menu Error:',
             error.message
         );
+
+        // Text fallback
+        try {
+
+            await m.reply(
+                menuText
+            );
+
+        } catch (fallbackError) {
+
+            console.error(
+                '❄️ Freezer-MD Menu Fallback Error:',
+                fallbackError.message
+            );
+        }
     }
 });
