@@ -203,10 +203,8 @@ ${BOT}`;
 
     const menuText = `
 ${TOP}
-╭━━━━━━━━━━━━━━━━━━━━━━╮
 ┃   ❄️ *𝗙𝗥𝗘𝗘𝗭𝗘𝗥-𝗠𝗗* ❄️
 ┃     *MULTI DEVICE*
-╰━━━━━━━━━━━━━━━━━━━━━━╯
 ${MID}
 ┃ 👑 *Owner:* ${botOwner}
 ┃ 👤 *User:* ${user}
