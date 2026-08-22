@@ -148,6 +148,23 @@ cmd({
         }
 
         // ─────────────────────────────────────
+        // DOWNLOAD AS BUFFER
+        // (fixes audio only playing for sender
+        // and not for other participants — many
+        // third-party APIs don't support the
+        // range requests other recipients' clients
+        // need, or the links expire quickly)
+        // ─────────────────────────────────────
+
+        const audioRes = await fetch(audioUrl);
+
+        if (!audioRes.ok) {
+            throw new Error('Failed to fetch audio file from source.');
+        }
+
+        const audioBuffer = Buffer.from(await audioRes.arrayBuffer());
+
+        // ─────────────────────────────────────
         // SUCCESS
         // ─────────────────────────────────────
 
@@ -157,13 +174,11 @@ cmd({
             filename.replace(/[<>:"/\\|?*]/g, '_');
 
         // ─────────────────────────────────────
-        // SEND AUDIO
+        // SEND AUDIO (buffer, not remote url)
         // ─────────────────────────────────────
 
         await sock.sendMessage(m.from, {
-            audio: {
-                url: audioUrl
-            },
+            audio: audioBuffer,
             mimetype: 'audio/mpeg',
             fileName: `${safeFilename}.mp3`,
 
@@ -182,13 +197,11 @@ cmd({
         });
 
         // ─────────────────────────────────────
-        // SEND DOCUMENT COPY
+        // SEND DOCUMENT COPY (buffer, not remote url)
         // ─────────────────────────────────────
 
         await sock.sendMessage(m.from, {
-            document: {
-                url: audioUrl
-            },
+            document: audioBuffer,
             mimetype: 'audio/mpeg',
             fileName: `${safeFilename}.mp3`,
             caption:
