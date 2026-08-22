@@ -1,5 +1,6 @@
+```json
 {
-  "name": "Freezer-MD",
+  "name": "freezer-md",
   "version": "1.0.0",
   "description": "Freezer-MD WhatsApp Bot",
   "main": "index.js",
@@ -16,6 +17,7 @@
   "keywords": [
     "whatsapp-bot",
     "baileys",
+    "freezer-md",
     "freezer"
   ],
   "dependencies": {
@@ -48,3 +50,4 @@
     "pm2": "^5.3.0"
   }
 }
+```
