@@ -39,40 +39,57 @@ cmd({
 
     try {
 
-        const uptime = process.uptime();
-        const formattedUptime = formatUptime(uptime);
+        const formattedUptime =
+            formatUptime(process.uptime());
 
-        const memory = process.memoryUsage();
+        const memory =
+            process.memoryUsage();
+
         const memoryMB =
             (memory.rss / 1024 / 1024).toFixed(1);
 
         const nodeVersion =
             process.version;
 
+        const TOP =
+            '╭━━━━━━━━━━━━━━━━━━━━❄️';
+
+        const MID =
+            '┣━━━━━━━━━━━━━━━━━━━━❄️';
+
+        const BOT =
+            '╰━━━━━━━━━━━━━━━━━━━━❄️';
+
+        const uptimeText =
+`${TOP}
+┃
+┃ ❄️ *𝗙𝗥𝗘𝗘𝗭𝗘𝗥-𝗠𝗗*
+┃ *𝗦𝗬𝗦𝗧𝗘𝗠 𝗨𝗣𝗧𝗜𝗠𝗘*
+┃
+${MID}
+┃ 🟢 *Status:* ONLINE
+┃ ⏱️ *Uptime:* ${formattedUptime}
+┃ 🧠 *RAM:* ${memoryMB} MB
+┃ 🟢 *Node:* ${nodeVersion}
+┃
+┃ ❄️ *Engine:* FREEZER-MD
+┃ 🛡️ *Security:* Protected
+┃
+${BOT}
+
+❄️ *FAST • STABLE • POWERFUL*
+> *BUILT DIFFERENT.*`;
+
         await sendInteractiveMessage(
             sock,
             m.from,
             {
-                title: '🥶 FREEZER-MD • SYSTEM UPTIME',
+                title: '❄️ FREEZER-MD • UPTIME',
 
-                text:
-                    `╭━━━〔 🥶 FREEZER-MD 〕━━━╮\n` +
-                    `┃\n` +
-                    `┃ ⚡ *SYSTEM STATUS*\n` +
-                    `┃\n` +
-                    `┃ 🟢 Status   : *ONLINE*\n` +
-                    `┃ ⏱️ Uptime   : *${formattedUptime}*\n` +
-                    `┃ 🧠 RAM      : *${memoryMB} MB*\n` +
-                    `┃ 🟢 Runtime  : *Node ${nodeVersion}*\n` +
-                    `┃\n` +
-                    `┃ ❄️ Engine   : *FREEZER-MD*\n` +
-                    `┃ 🔐 Security : *Protected*\n` +
-                    `┃\n` +
-                    `╰━━━━━━━━━━━━━━━━━━━━━━╯\n\n` +
-                    `🥶 *FREEZER-MD IS RUNNING SMOOTHLY*`,
+                text: uptimeText,
 
                 footer:
-                    '🥶 Freezer-MD • Advanced WhatsApp Bot',
+                    '❄️ Freezer-MD • Built Different',
 
                 interactiveButtons: [
                     {
@@ -81,7 +98,7 @@ cmd({
                         buttonParamsJson:
                             JSON.stringify({
                                 display_text:
-                                    '🥶 View Freezer Channel',
+                                    '📢 View Freezer Channel',
 
                                 url:
                                     'https://whatsapp.com/channel/0029Vb87tM1D8SE7qCVjbq3U'
@@ -94,14 +111,20 @@ cmd({
     } catch (error) {
 
         console.error(
-            'Freezer-MD Uptime Error:',
+            '[FREEZER-MD] Uptime Error:',
             error
         );
 
         await m.reply(
-            `🥶 *FREEZER-MD*\n\n` +
-            `🟢 Status: *ONLINE*\n` +
-            `⏱️ Uptime: *${formatUptime(process.uptime())}*`
+`${'╭━━━━━━━━━━━━━━━━━━━━❄️'}
+┃
+┃ ❄️ *𝗙𝗥𝗘𝗘𝗭𝗘𝗥-𝗠𝗗*
+┃
+┃ 🟢 *Status:* ONLINE
+┃ ⏱️ *Uptime:* ${formatUptime(process.uptime())}
+┃
+${'╰━━━━━━━━━━━━━━━━━━━━❄️'}`
         );
     }
 });
+
