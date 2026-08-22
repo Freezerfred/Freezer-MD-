@@ -1,4 +1,3 @@
-```javascript
 'use strict';
 
 const { sendInteractiveMessage } = require('gifted-btns');
@@ -153,4 +152,3 @@ ${BOT}`
         );
     }
 });
-```
