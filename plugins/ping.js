@@ -1,3 +1,4 @@
+```javascript
 'use strict';
 
 const { sendInteractiveMessage } = require('gifted-btns');
@@ -7,33 +8,35 @@ cmd({
     pattern: 'ping',
     name: 'ping',
     category: 'General',
-    description: 'Measure real Freezer-MD response speed',
+    description: 'Measure Freezer-MD response speed',
     aliases: ['pong', 'latency'],
     filename: __filename
 }, async (sock, m) => {
 
     try {
 
-        // ─────────────────────────────────────
-        // REAL BOT RESPONSE TEST
-        // ─────────────────────────────────────
+        // ─────────────────────────────────────────────
+        // REAL RESPONSE MEASUREMENT
+        // ─────────────────────────────────────────────
 
         const start = process.hrtime.bigint();
 
-        const pingMsg = await sock.sendMessage(m.from, {
+        const response = await sock.sendMessage(m.from, {
             text: '❄️ *FREEZER-MD* • Checking response...'
         });
 
         const end = process.hrtime.bigint();
 
-        const latency =
-            Number(end - start) / 1_000_000;
+        const ms = Math.max(
+            1,
+            Math.round(
+                Number(end - start) / 1_000_000
+            )
+        );
 
-        const ms = Math.round(latency);
-
-        // ─────────────────────────────────────
-        // STATUS
-        // ─────────────────────────────────────
+        // ─────────────────────────────────────────────
+        // RESPONSE STATUS
+        // ─────────────────────────────────────────────
 
         const status =
             ms <= 150 ? '⚡ Excellent' :
@@ -41,60 +44,113 @@ cmd({
             ms <= 800 ? '🟢 Stable' :
             '🟡 Slow';
 
-        // ─────────────────────────────────────
-        // FINAL RESULT
-        // ─────────────────────────────────────
+        // ─────────────────────────────────────────────
+        // FREEZER-MD DESIGN
+        // ─────────────────────────────────────────────
 
-        await sock.sendMessage(m.from, {
-            text:
-`╭━━━━━━━━━━━━━━━━━━━━╮
-┃ ❄️ *FREEZER-MD*
-┣━━━━━━━━━━━━━━━━━━━━┫
+        const TOP =
+            '╭━━━━━━━━━━━━━━━━━━━━❄️';
+
+        const MID =
+            '┣━━━━━━━━━━━━━━━━━━━━❄️';
+
+        const BOT =
+            '╰━━━━━━━━━━━━━━━━━━━━❄️';
+
+        const pingText =
+`${TOP}
 ┃
-┃ 🏓 *PONG!*
+┃ ❄️ *𝗙𝗥𝗘𝗘𝗭𝗘𝗥-𝗠𝗗*
 ┃
-┃ ⚡ *Response:* ${ms}ms
+${MID}
+┃ 🏓 *Pong:* ${ms}ms
 ┃ 📡 *Status:* ${status}
 ┃
-┣━━━━━━━━━━━━━━━━━━━━┫
-┃ ❄️ *FAST • STABLE • POWERFUL*
-╰━━━━━━━━━━━━━━━━━━━━╯`,
-            edit: pingMsg.key
-        });
+${BOT}
 
-        // ─────────────────────────────────────
-        // VIEW CHANNEL
-        // ─────────────────────────────────────
+❄️ *FAST • STABLE • POWERFUL*
+> *BUILT DIFFERENT.*`;
 
-        await sendInteractiveMessage(sock, m.from, {
-            title: '❄️ FREEZER-MD',
-            text: '📢 Get the latest Freezer-MD updates, releases and announcements.',
-            footer: 'FREEZER-MD • BUILT DIFFERENT',
-            interactiveButtons: [
+        // ─────────────────────────────────────────────
+        // EDIT ORIGINAL MESSAGE
+        // ─────────────────────────────────────────────
+
+        try {
+
+            await sock.sendMessage(
+                m.from,
                 {
-                    name: 'cta_url',
-                    buttonParamsJson: JSON.stringify({
-                        display_text: '📢 View Channel',
-                        url: 'https://whatsapp.com/channel/0029Vb87tM1D8SE7qCVjbq3U'
-                    })
+                    text: pingText,
+                    edit: response.key
                 }
-            ]
-        });
+            );
+
+        } catch (editError) {
+
+            // Some Baileys versions do not support
+            // editing messages in this format.
+            // Send the result instead.
+
+            await m.reply(pingText);
+        }
+
+        // ─────────────────────────────────────────────
+        // VIEW CHANNEL
+        // ─────────────────────────────────────────────
+
+        await sendInteractiveMessage(
+            sock,
+            m.from,
+            {
+                title: '❄️ FREEZER-MD',
+
+                text:
+                    '📢 Stay updated with Freezer-MD releases, updates and new features.',
+
+                footer:
+                    '❄️ Freezer-MD • Built Different',
+
+                interactiveButtons: [
+                    {
+                        name: 'cta_url',
+
+                        buttonParamsJson:
+                            JSON.stringify({
+                                display_text:
+                                    '📢 View Channel',
+
+                                url:
+                                    'https://whatsapp.com/channel/0029Vb87tM1D8SE7qCVjbq3U'
+                            })
+                    }
+                ]
+            }
+        );
 
     } catch (error) {
 
-        console.error('[FREEZER-MD] Ping Error:', error);
+        console.error(
+            '[FREEZER-MD] Ping Error:',
+            error
+        );
+
+        const TOP =
+            '╭━━━━━━━━━━━━━━━━━━━━❄️';
+
+        const BOT =
+            '╰━━━━━━━━━━━━━━━━━━━━❄️';
 
         await m.reply(
-`╭━━━━━━━━━━━━━━━━━━━━╮
-┃ ❄️ *FREEZER-MD*
-┣━━━━━━━━━━━━━━━━━━━━┫
+`${TOP}
 ┃
-┃ ❌ *PING FAILED*
+┃ ❄️ *𝗙𝗥𝗘𝗘𝗭𝗘𝗥-𝗠𝗗*
+┃
+┃ ❌ *Ping failed*
 ┃
 ┃ ${error?.message || 'Unknown error'}
 ┃
-╰━━━━━━━━━━━━━━━━━━━━╯`
+${BOT}`
         );
     }
 });
+```
