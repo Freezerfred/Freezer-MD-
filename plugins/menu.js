@@ -1,3 +1,4 @@
+```javascript
 'use strict';
 
 const axios = require('axios');
@@ -41,8 +42,7 @@ cmd({
     // BOT INFORMATION
     // ─────────────────────────────────────────────
 
-    const botOwner =
-        global.ownerName || 'Freezer';
+    const botOwner = global.ownerName || '🥶 Freezer 🥶';
 
     const user =
         m.pushName ||
@@ -51,14 +51,9 @@ cmd({
 
     const uptimeSec = process.uptime();
 
-    const hours =
-        Math.floor(uptimeSec / 3600);
-
-    const minutes =
-        Math.floor((uptimeSec % 3600) / 60);
-
-    const seconds =
-        Math.floor(uptimeSec % 60);
+    const hours = Math.floor(uptimeSec / 3600);
+    const minutes = Math.floor((uptimeSec % 3600) / 60);
+    const seconds = Math.floor(uptimeSec % 60);
 
     const uptimeStr =
         `${hours}h ${minutes}m ${seconds}s`;
@@ -74,14 +69,16 @@ cmd({
     // FREEZER-MD DESIGN
     // ─────────────────────────────────────────────
 
+    const CAP = '❄️';
+
     const TOP =
-        '╭━━━━━━━━━━━━━━━━━━━━╮';
+        `╭━━━━━━━━━━━━━━━━━━━━${CAP}`;
 
     const MID =
-        '┣━━━━━━━━━━━━━━━━━━━━┫';
+        `┣━━━━━━━━━━━━━━━━━━━━${CAP}`;
 
     const BOT =
-        '╰━━━━━━━━━━━━━━━━━━━━╯';
+        `╰━━━━━━━━━━━━━━━━━━━━${CAP}`;
 
     // ─────────────────────────────────────────────
     // CATEGORIES
@@ -203,8 +200,10 @@ ${BOT}`;
 
     const menuText = `
 ${TOP}
-┃   ❄️ *𝗙𝗥𝗘𝗘𝗭𝗘𝗥-𝗠𝗗* ❄️
-┃     *MULTI DEVICE*
+┃
+┃ ❄️ *𝗙𝗥𝗘𝗘𝗭𝗘𝗥-𝗠𝗗* ❄️
+┃ *𝗠𝗨𝗟𝗧𝗜 𝗗𝗘𝗩𝗜𝗖𝗘*
+┃
 ${MID}
 ┃ 👑 *Owner:* ${botOwner}
 ┃ 👤 *User:* ${user}
@@ -214,12 +213,18 @@ ${MID}
 ┃ 🕐 *Time:* ${time}
 ┃ 📊 *RAM:* ${ramStr}
 ┃ 🔧 *Prefix:* ${prefix}
+┃
 ${BOT}
 
 ${commandSections}
 
-❄️ *𝗙𝗥𝗘𝗘𝗭𝗘𝗥-𝗠𝗗*
-> *𝗙𝗔𝗦𝗧 • 𝗦𝗧𝗔𝗕𝗟𝗘 • 𝗣𝗢𝗪𝗘𝗥𝗙𝗨𝗟*
+${TOP}
+┃
+┃ ❄️ *𝗙𝗥𝗘𝗘𝗭𝗘𝗥-𝗠𝗗*
+┃
+${BOT}
+
+> ❄️ *𝗙𝗔𝗦𝗧 • 𝗦𝗧𝗔𝗕𝗟𝗘 • 𝗣𝗢𝗪𝗘𝗥𝗙𝗨𝗟*
 > *𝗕𝗨𝗜𝗟𝗧 𝗗𝗜𝗙𝗙𝗘𝗥𝗘𝗡𝗧.*
 `.trim();
 
@@ -272,3 +277,4 @@ ${commandSections}
         );
     }
 });
+```
