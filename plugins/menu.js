@@ -14,563 +14,265 @@ cmd({
     filename: __filename
 }, async (sock, m) => {
 
-    try {
-
-        // =====================================================
-        // PREFIX
-        // =====================================================
-
-        const prefix =
-            global.BOT_PREFIX || '.';
-
-        // =====================================================
-        // DATE & TIME — NAIROBI
-        // =====================================================
-
-        const now = new Date();
-
-        const date =
-            now.toLocaleDateString('en-GB', {
-                day: '2-digit',
-                month: 'short',
-                year: 'numeric',
-                timeZone: 'Africa/Nairobi'
-            });
-
-        const time =
-            now.toLocaleTimeString('en-US', {
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: true,
-                timeZone: 'Africa/Nairobi'
-            });
-
-        // =====================================================
-        // BOT INFORMATION
-        // =====================================================
-
-        const botName =
-            global.BOT_NAME ||
-            'FREEZER-MD';
-
-        const botOwner =
-            global.ownerName ||
-            '🥶 Freezer 🥶';
-
-        const user =
-            m.pushName ||
-            m.sender?.split('@')[0] ||
-            'User';
-
-        // =====================================================
-        // UPTIME
-        // =====================================================
-
-        const uptimeSec =
-            Math.floor(process.uptime());
-
-        const days =
-            Math.floor(
-                uptimeSec / 86400
-            );
-
-        const hours =
-            Math.floor(
-                (uptimeSec % 86400) / 3600
-            );
-
-        const minutes =
-            Math.floor(
-                (uptimeSec % 3600) / 60
-            );
+    const prefix = global.BOT_PREFIX || '.';
+
+    // ─────────────────────────────────────────────
+    // DATE & TIME
+    // ─────────────────────────────────────────────
+
+    const now = new Date();
+
+    const date = now.toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+        timeZone: 'Africa/Nairobi'
+    });
+
+    const time = now.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true,
+        timeZone: 'Africa/Nairobi'
+    });
+
+    // ─────────────────────────────────────────────
+    // BOT INFORMATION
+    // ─────────────────────────────────────────────
+
+    const botOwner = global.ownerName || '🥶 Freezer 🥶';
+
+    const user =
+        m.pushName ||
+        m.sender?.split('@')[0] ||
+        'User';
+
+    const uptimeSec = process.uptime();
+
+    const hours = Math.floor(uptimeSec / 3600);
+    const minutes = Math.floor((uptimeSec % 3600) / 60);
+    const seconds = Math.floor(uptimeSec % 60);
+
+    const uptimeStr =
+        `${hours}h ${minutes}m ${seconds}s`;
+
+    const ramStr =
+        `${(
+            process.memoryUsage().rss /
+            1024 /
+            1024
+        ).toFixed(2)}MB`;
+
+    // ─────────────────────────────────────────────
+    // FREEZER-MD DESIGN
+    // ─────────────────────────────────────────────
+
+    const CAP = '❄️';
+
+    const TOP =
+        `╭━━━━━━━━━━━━━━━━━━━━${CAP}`;
+
+    const MID =
+        `┣━━━━━━━━━━━━━━━━━━━━${CAP}`;
+
+    const BOT =
+        `╰━━━━━━━━━━━━━━━━━━━━${CAP}`;
+
+    // ─────────────────────────────────────────────
+    // CATEGORIES
+    // ─────────────────────────────────────────────
+
+    const CATEGORY_ORDER = [
+        'General',
+        'Downloaders',
+        'Tools',
+        'AI',
+        'Fun',
+        'Group',
+        'Status',
+        'Channel',
+        'Admin'
+    ];
+
+    const CATEGORY_ICONS = {
+        General: '⚡',
+        Downloaders: '📥',
+        Tools: '🛠️',
+        AI: '🧠',
+        Fun: '🎮',
+        Group: '👥',
+        Status: '📡',
+        Channel: '📢',
+        Admin: '👑'
+    };
+
+    // ─────────────────────────────────────────────
+    // LOAD PLUGINS
+    // ─────────────────────────────────────────────
+
+    const grouped = {};
+    const seen = new Set();
+
+    let totalPlugins = 0;
 
-        const seconds =
-            uptimeSec % 60;
+    if (global.plugins instanceof Map) {
 
-        const uptimeParts = [];
+        const uniquePlugins =
+            new Set(global.plugins.values());
 
-        if (days) {
-            uptimeParts.push(
-                `${days}d`
-            );
-        }
+        totalPlugins =
+            uniquePlugins.size;
 
-        if (hours) {
-            uptimeParts.push(
-                `${hours}h`
-            );
-        }
+        for (const plugin of uniquePlugins) {
 
-        if (minutes) {
-            uptimeParts.push(
-                `${minutes}m`
-            );
-        }
-
-        uptimeParts.push(
-            `${seconds}s`
-        );
-
-        const uptimeStr =
-            uptimeParts.join(' ');
-
-        // =====================================================
-        // RAM
-        // =====================================================
-
-        const ramStr =
-            `${(
-                process.memoryUsage().rss /
-                1024 /
-                1024
-            ).toFixed(2)}MB`;
-
-        // =====================================================
-        // HEAVY WHATSAPP BOX
-        // =====================================================
-
-        const TOP =
-            '╔══════════════════════╗';
-
-        const MID =
-            '╠══════════════════════╣';
-
-        const BOTTOM =
-            '╚══════════════════════╝';
-
-        // =====================================================
-        // CATEGORY ORDER
-        // =====================================================
-
-        const CATEGORY_ORDER = [
-            'General',
-            'Downloaders',
-            'Tools',
-            'AI',
-            'Fun',
-            'Group',
-            'Status',
-            'Channel',
-            'Admin',
-            'Owner',
-            'Security'
-        ];
-
-        // =====================================================
-        // CATEGORY EMOJIS
-        // =====================================================
-
-        const CATEGORY_ICONS = {
-
-            General: '⚡',
-
-            Downloaders: '📥',
-
-            Tools: '🛠️',
-
-            AI: '🤖',
-
-            Fun: '🎮',
-
-            Group: '👥',
-
-            Status: '📡',
-
-            Channel: '📢',
-
-            Admin: '👑',
-
-            Owner: '🔐',
-
-            Security: '🛡️'
-        };
-
-        // =====================================================
-        // COMMAND EMOJIS
-        // =====================================================
-
-        const COMMAND_ICONS = {
-
-            // General
-            creator: '👤',
-            alive: '💚',
-            menu: '📋',
-            ping: '📡',
-            uptime: '⏱️',
-            freezer: '🥶',
-            repo: '🔗',
-
-            // Downloaders
-            igdl: '📸',
-            fbdl: '📘',
-            play: '▶️',
-            tiktok: '🎵',
-            video: '🎬',
-            ytsearch: '🔎',
-            ytmp3: '🎧',
-            ytmp4: '🎬',
-
-            // Tools
-            compress: '🗜️',
-            img: '🖼️',
-            ocr: '🔤',
-            poll: '📊',
-            profilepic: '👤',
-            retag: '🏷️',
-            sv: '🔗',
-            shazam: '🎵',
-            sticker: '🧩',
-            textpro: '📝',
-            toaudio: '🎧',
-            tourl: '🌐',
-            tts: '🗣️',
-            viewonce: '👁️',
-
-            // AI
-            ai: '🧠',
-            chat: '💬',
-            ask: '❓',
-            imagine: '🎨',
-            image: '🖼️',
-            write: '✍️',
-
-            // Fun
-            joke: '😂',
-            meme: '🤣',
-            quote: '💭',
-            truth: '🎭',
-            dare: '🔥',
-            fact: '🧠',
-
-            // Group
-            add: '➕',
-            kick: '🚫',
-            promote: '⬆️',
-            demote: '⬇️',
-            mute: '🔇',
-            unmute: '🔊',
-            tagall: '📢',
-            hidetag: '🙈',
-            welcome: '👋',
-            goodbye: '👋',
-            groupinfo: '👥',
-
-            // Status
-            status: '🟢',
-            autoview: '👁️',
-            autoreact: '❤️',
-            autolike: '👍',
-
-            // Channel
-            channel: '📢',
-            follow: '➕',
-            unfollow: '➖',
-
-            // Admin
-            settings: '⚙️',
-            manage: '🔧',
-            announce: '📣',
-
-            // Owner
-            eval: '💻',
-            exec: '⚙️',
-            restart: '🔄',
-            shutdown: '⛔',
-            update: '🔄',
-            reload: '♻️',
-            broadcast: '📡',
-
-            // Security
-            antidelete: '🗑️',
-            protect: '🛡️',
-            privacy: '🔐'
-        };
-
-        // =====================================================
-        // LOAD PLUGINS
-        // =====================================================
-
-        const grouped = {};
-        const seen = new Set();
-
-        let totalPlugins = 0;
-
-        if (
-            global.plugins instanceof Map
-        ) {
-
-            const uniquePlugins =
-                new Set(
-                    global.plugins.values()
-                );
-
-            for (
-                const plugin
-                of uniquePlugins
-            ) {
-
-                if (
-                    !plugin ||
-                    !plugin.name
-                ) {
-                    continue;
-                }
-
-                // Don't show hidden plugins
-                if (plugin.hidden) {
-                    continue;
-                }
-
-                const pluginName =
-                    String(
-                        plugin.name
-                    ).trim();
-
-                if (!pluginName) {
-                    continue;
-                }
-
-                const uniqueName =
-                    pluginName.toLowerCase();
-
-                // Prevent duplicate commands
-                if (
-                    seen.has(uniqueName)
-                ) {
-                    continue;
-                }
-
-                seen.add(uniqueName);
-
-                const category =
-                    String(
-                        plugin.category ||
-                        'General'
-                    ).trim();
-
-                if (
-                    !grouped[category]
-                ) {
-                    grouped[category] = [];
-                }
-
-                grouped[category].push(
-                    pluginName
-                );
-
-                totalPlugins++;
+            if (!plugin || !plugin.name) {
+                continue;
             }
+
+            if (plugin.hidden) {
+                continue;
+            }
+
+            if (seen.has(plugin.name)) {
+                continue;
+            }
+
+            seen.add(plugin.name);
+
+            const category =
+                plugin.category || 'General';
+
+            if (!grouped[category]) {
+                grouped[category] = [];
+            }
+
+            grouped[category].push(
+                `${prefix}${plugin.name}`
+            );
         }
+    }
 
-        // =====================================================
-        // ALL CATEGORIES
-        // =====================================================
+    // ─────────────────────────────────────────────
+    // BUILD CATEGORIES
+    // ─────────────────────────────────────────────
 
-        const allCategories = [
+    const allCategories = [
+        ...CATEGORY_ORDER.filter(
+            category => grouped[category]
+        ),
 
-            ...CATEGORY_ORDER.filter(
-                category =>
-                    grouped[category] &&
-                    grouped[category].length
-            ),
+        ...Object.keys(grouped).filter(
+            category =>
+                !CATEGORY_ORDER.includes(category)
+        )
+    ];
 
-            ...Object.keys(grouped)
-                .filter(
-                    category =>
-                        !CATEGORY_ORDER.includes(
-                            category
-                        ) &&
-                        grouped[category]?.length
-                )
-        ];
+    const commandSections =
+        allCategories.map(category => {
 
-        // =====================================================
-        // BUILD CATEGORY SECTIONS
-        // =====================================================
+            const icon =
+                CATEGORY_ICONS[category] || '📂';
 
-        const commandSections =
-            allCategories
-                .map(category => {
+            const commands =
+                grouped[category]
+                    .sort((a, b) =>
+                        a.localeCompare(b)
+                    )
+                    .map(command =>
+                        `┃ ❄️ ${command}`
+                    )
+                    .join('\n');
 
-                    const categoryIcon =
-                        CATEGORY_ICONS[
-                            category
-                        ] || '📂';
-
-                    const commands =
-                        grouped[category]
-                            .sort(
-                                (a, b) =>
-                                    a.localeCompare(b)
-                            )
-                            .map(command => {
-
-                                const commandKey =
-                                    command
-                                        .toLowerCase()
-                                        .replace(
-                                            /^\./,
-                                            ''
-                                        );
-
-                                const emoji =
-                                    COMMAND_ICONS[
-                                        commandKey
-                                    ] || '🔹';
-
-                                return (
-                                    `║ ${emoji} ${prefix}${command}`
-                                );
-
-                            })
-                            .join('\n');
-
-                    return `
+            return `
 ${TOP}
-║ ${categoryIcon} *${category.toUpperCase()}*
+┃ ${icon} *${category.toUpperCase()}*
 ${MID}
 ${commands}
-${BOTTOM}`;
+${BOT}`;
 
-                })
-                .join('\n');
+        }).join('\n');
 
-        // =====================================================
-        // FINAL MENU
-        // =====================================================
+    // ─────────────────────────────────────────────
+    // MENU
+    // ─────────────────────────────────────────────
 
-        const menuText = `
+    const menuText = `
 ${TOP}
-║ 🥶 *${botName}*
-║ ✨ *MULTI-DEVICE*
+┃
+┃ ❄️ *𝗙𝗥𝗘𝗘𝗭𝗘𝗥-𝗠𝗗* ❄️
+┃ *𝗠𝗨𝗟𝗧𝗜 𝗗𝗘𝗩𝗜𝗖𝗘*
+┃
 ${MID}
-║ 👑 *OWNER:* ${botOwner}
-║ 👤 *USER:* ${user}
-║ 🧩 *PLUGINS:* ${totalPlugins}
-║ ⚡ *UPTIME:* ${uptimeStr}
-║ 📅 *DATE:* ${date}
-║ 🕐 *TIME:* ${time}
-║ 📊 *RAM:* ${ramStr}
-║ 🔧 *PREFIX:* ${prefix}
-${BOTTOM}
+┃ 👑 *Owner:* ${botOwner}
+┃ 👤 *User:* ${user}
+┃ 🧩 *Plugins:* ${totalPlugins}
+┃ ⚡ *Uptime:* ${uptimeStr}
+┃ 📅 *Date:* ${date}
+┃ 🕐 *Time:* ${time}
+┃ 📊 *RAM:* ${ramStr}
+┃ 🔧 *Prefix:* ${prefix}
+┃
+${BOT}
 
 ${commandSections}
 
 ${TOP}
-║ 🥶 *${botName}*
-${MID}
-║ 🚀 *FAST • STABLE • POWERFUL*
-║ 💠 *POWERED BY FREEZER*
-║ ❄️ *BUILT DIFFERENT*
-${BOTTOM}
+┃
+┃ ❄️ *𝗙𝗥𝗘𝗘𝗭𝗘𝗥-𝗠𝗗*
+┃
+${BOT}
+
+> ❄️ *𝗙𝗔𝗦𝗧 • 𝗦𝗧𝗔𝗕𝗟𝗘 • 𝗣𝗢𝗪𝗘𝗥𝗙𝗨𝗟*
+> *𝗕𝗨𝗜𝗟𝗧 𝗗𝗜𝗙𝗙𝗘𝗥𝗘𝗡𝗧.*
 `.trim();
 
-        // =====================================================
-        // SEND MENU
-        // =====================================================
+    // ─────────────────────────────────────────────
+    // MENU IMAGE — REQUIRED
+    // ─────────────────────────────────────────────
 
-        if (
-            !global.menuImage
-        ) {
+    try {
 
-            return await m.reply(
-                menuText
+        if (!global.menuImage) {
+            throw new Error(
+                'global.menuImage is not configured'
             );
         }
 
-        let imageBuffer;
+        const imageBuffer =
+            /^https?:\/\//i.test(global.menuImage)
 
-        // Remote image
-        if (
-            /^https?:\/\//i.test(
-                global.menuImage
-            )
-        ) {
+                ? (
+                    await axios.get(
+                        global.menuImage,
+                        {
+                            responseType:
+                                'arraybuffer',
+                            timeout: 10000
+                        }
+                    )
+                ).data
 
-            const response =
-                await axios.get(
-                    global.menuImage,
-                    {
-                        responseType:
-                            'arraybuffer',
-
-                        timeout: 15000,
-
-                        maxContentLength:
-                            10 * 1024 * 1024,
-
-                        maxBodyLength:
-                            10 * 1024 * 1024
-                    }
-                );
-
-            imageBuffer =
-                Buffer.from(
-                    response.data
-                );
-
-        }
-
-        // Local image
-        else {
-
-            if (
-                !fs.existsSync(
-                    global.menuImage
-                )
-            ) {
-
-                throw new Error(
-                    'Menu image file not found'
-                );
-            }
-
-            imageBuffer =
-                fs.readFileSync(
+                : fs.readFileSync(
                     global.menuImage
                 );
-        }
 
-        // =====================================================
-        // SEND IMAGE MENU
-        // =====================================================
+        // ─────────────────────────────────────────
+        // SEND MENU IMAGE
+        // ─────────────────────────────────────────
 
-        await sock.sendMessage(
-            m.from,
+        await m.reply(
+            imageBuffer,
             {
-                image: imageBuffer,
                 caption: menuText
-            },
-            {
-                quoted: m.key
             }
         );
 
     } catch (error) {
 
         console.error(
-            '[FREEZER-MD] Menu Error:',
-            error
+            '❄️ Freezer-MD Menu Error:',
+            error.message
         );
-
-        // Fallback to text menu
-        try {
-
-            await m.reply(
-`❌ *FREEZER-MD MENU ERROR*
-
-Unable to load the menu image.
-
-${error.message}`
-            );
-
-        } catch (replyError) {
-
-            console.error(
-                '[FREEZER-MD] Menu Reply Error:',
-                replyError
-            );
-        }
     }
 });
