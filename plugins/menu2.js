@@ -1,7 +1,7 @@
 'use strict';
 
 const axios = require('axios');
-const { promises: fs } = require('fs');   // non‑blocking file operations
+const { promises: fs } = require('fs');
 const { cmd } = require('../arslan');
 
 cmd({
@@ -66,14 +66,14 @@ cmd({
         const ramStr = `${(process.memoryUsage().rss / 1024 / 1024).toFixed(2)}MB`;
 
         // ─────────────────────────────────────────────
-        // 6. BOX DRAWING CHARACTERS
+        // 6. BORDER LINES – now ending with ❄️
         // ─────────────────────────────────────────────
-        const TOP = '╔══════════════════════╗';
-        const MID = '╠══════════════════════╣';
-        const BOTTOM = '╚══════════════════════╝';
+        const TOP = '╔══════════════════════╗ ❄️';
+        const MID = '╠══════════════════════╣ ❄️';
+        const BOTTOM = '╚══════════════════════╝ ❄️';
 
         // ─────────────────────────────────────────────
-        // 7. CATEGORIES & ICONS
+        // 7. CATEGORIES & ICONS (only for category titles)
         // ─────────────────────────────────────────────
         const CATEGORY_ORDER = [
             'General', 'Downloaders', 'Tools', 'AI', 'Fun',
@@ -87,45 +87,7 @@ cmd({
         };
 
         // ─────────────────────────────────────────────
-        // 8. COMMAND‑SPECIFIC EMOJIS
-        // ─────────────────────────────────────────────
-        const COMMAND_ICONS = {
-            // General
-            creator: '👤', alive: '💚', menu: '📋', ping: '📡',
-            uptime: '⏱️', freezer: '🥶', repo: '🔗',
-            // Downloaders
-            igdl: '📸', fbdl: '📘', play: '▶️', tiktok: '🎵',
-            video: '🎬', ytsearch: '🔎', ytmp3: '🎧', ytmp4: '🎬',
-            // Tools
-            compress: '🗜️', img: '🖼️', ocr: '🔤', poll: '📊',
-            profilepic: '👤', retag: '🏷️', sv: '🔗', shazam: '🎵',
-            sticker: '🧩', textpro: '📝', toaudio: '🎧', tourl: '🌐',
-            tts: '🗣️', viewonce: '👁️',
-            // AI
-            ai: '🧠', chat: '💬', ask: '❓', imagine: '🎨',
-            image: '🖼️', write: '✍️',
-            // Fun
-            joke: '😂', meme: '🤣', quote: '💭', truth: '🎭',
-            dare: '🔥', fact: '🧠',
-            // Group
-            add: '➕', kick: '🚫', promote: '⬆️', demote: '⬇️',
-            mute: '🔇', unmute: '🔊', tagall: '📢', hidetag: '🙈',
-            welcome: '👋', goodbye: '👋', groupinfo: '👥',
-            // Status
-            status: '🟢', autoview: '👁️', autoreact: '❤️', autolike: '👍',
-            // Channel
-            channel: '📢', follow: '➕', unfollow: '➖',
-            // Admin
-            settings: '⚙️', manage: '🔧', announce: '📣',
-            // Owner
-            eval: '💻', exec: '⚙️', restart: '🔄', shutdown: '⛔',
-            update: '🔄', reload: '♻️', broadcast: '📡',
-            // Security
-            antidelete: '🗑️', protect: '🛡️', privacy: '🔐'
-        };
-
-        // ─────────────────────────────────────────────
-        // 9. LOAD & GROUP PLUGINS
+        // 8. LOAD & GROUP PLUGINS
         // ─────────────────────────────────────────────
         const grouped = {};
         const seen = new Set();
@@ -150,7 +112,7 @@ cmd({
         }
 
         // ─────────────────────────────────────────────
-        // 10. BUILD CATEGORY SECTIONS
+        // 9. BUILD CATEGORY SECTIONS
         // ─────────────────────────────────────────────
         const allCategories = [
             ...CATEGORY_ORDER.filter(cat => grouped[cat]?.length),
@@ -171,9 +133,8 @@ ${BOTTOM}`;
                 const commands = grouped[category]
                     .sort((a, b) => a.localeCompare(b))
                     .map(cmdName => {
-                        const key = cmdName.toLowerCase().replace(/^\./, '');
-                        const emoji = COMMAND_ICONS[key] || '🔹';
-                        return `║ ${emoji} ${prefix}${cmdName}`;
+                        // ❄️ used before every command – dynamic icons removed
+                        return `║ ❄️ ${prefix}${cmdName}`;
                     })
                     .join('\n');
 
@@ -187,7 +148,7 @@ ${BOTTOM}`;
         }
 
         // ─────────────────────────────────────────────
-        // 11. FINAL MENU TEXT
+        // 10. FINAL MENU TEXT
         // ─────────────────────────────────────────────
         const menuText = `
 ${TOP}
@@ -216,10 +177,9 @@ ${BOTTOM}
 `.trim();
 
         // ─────────────────────────────────────────────
-        // 12. SEND – IMAGE OR TEXT ONLY
+        // 11. SEND – IMAGE OR TEXT ONLY
         // ─────────────────────────────────────────────
         if (!global.menuImage) {
-            // No image configured → send plain text
             return await m.reply(menuText);
         }
 
@@ -227,7 +187,6 @@ ${BOTTOM}
 
         try {
             if (/^https?:\/\//i.test(global.menuImage)) {
-                // Remote URL
                 const response = await axios.get(global.menuImage, {
                     responseType: 'arraybuffer',
                     timeout: 15000,
@@ -236,32 +195,25 @@ ${BOTTOM}
                 });
                 imageBuffer = Buffer.from(response.data);
             } else {
-                // Local file – async read
-                await fs.access(global.menuImage); // check existence
+                await fs.access(global.menuImage);
                 imageBuffer = await fs.readFile(global.menuImage);
             }
 
-            // Validate buffer
             if (!imageBuffer || imageBuffer.length === 0) {
                 throw new Error('Empty image buffer');
             }
 
-            // Send with image
             await m.reply(imageBuffer, { caption: menuText });
 
         } catch (imgError) {
-            // Log but don't crash – fall back to text
             console.error('[FREEZER-MD] Menu image failed:', imgError.message);
             await m.reply(menuText);
         }
 
     } catch (error) {
-        // Top‑level error – log and notify the user
         console.error('[FREEZER-MD] Menu command error:', error);
         try {
             await m.reply(`❌ *Menu Error*\n\n${error.message}`);
-        } catch (_) {
-            // Ignore if even the fallback fails
-        }
+        } catch (_) { /* ignore */ }
     }
 });
