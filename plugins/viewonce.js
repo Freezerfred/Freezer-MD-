@@ -10,6 +10,7 @@
 'use strict';
 
 const { cmd } = require('../arslan');
+const { downloadMediaMessage } = require('@whiskeysockets/baileys');
 
 cmd({
     pattern: 'viewonce',
@@ -43,15 +44,15 @@ cmd({
         if (target.message?.imageMessage) {
             type = 'image';
             mime = target.message.imageMessage.mimetype || 'image/jpeg';
-            media = await sock.downloadMediaMessage(target);
+            media = await downloadMediaMessage(target, sock);   // <-- FIXED
         } else if (target.message?.videoMessage) {
             type = 'video';
             mime = target.message.videoMessage.mimetype || 'video/mp4';
-            media = await sock.downloadMediaMessage(target);
+            media = await downloadMediaMessage(target, sock);   // <-- FIXED
         } else if (target.message?.audioMessage) {
             type = 'audio';
             mime = target.message.audioMessage.mimetype || 'audio/ogg';
-            media = await sock.downloadMediaMessage(target);
+            media = await downloadMediaMessage(target, sock);   // <-- FIXED
         } else {
             return; // unsupported media
         }
