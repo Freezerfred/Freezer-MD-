@@ -1,5 +1,8 @@
-# 🥶 Freezer-MD
 
+
+<p align="center">
+  <img src="https://i.ibb.co/fY77xvV1/IMG-20260814-WA0000-1.jpg" alt="Freezer-MD" width="700">
+</p>
 <p align="center">
   <b>Fast • Modular • Reliable WhatsApp Automation</b>
 </p>
