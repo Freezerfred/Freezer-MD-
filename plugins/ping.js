@@ -1,6 +1,5 @@
 'use strict';
 
-const { sendInteractiveMessage } = require('gifted-btns');
 const { cmd } = require('../arslan');
 
 cmd({
@@ -86,45 +85,9 @@ ${BOT}
 
         } catch (editError) {
 
-            // Some Baileys versions do not support
-            // editing messages in this format.
-            // Send the result instead.
-
+            // Fallback if message editing isn't supported
             await m.reply(pingText);
         }
-
-        // ─────────────────────────────────────────────
-        // VIEW CHANNEL
-        // ─────────────────────────────────────────────
-
-        await sendInteractiveMessage(
-            sock,
-            m.from,
-            {
-                title: '❄️ FREEZER-MD',
-
-                text:
-                    '📢 Stay updated with Freezer-MD releases, updates and new features.',
-
-                footer:
-                    '❄️ Freezer-MD • Built Different',
-
-                interactiveButtons: [
-                    {
-                        name: 'cta_url',
-
-                        buttonParamsJson:
-                            JSON.stringify({
-                                display_text:
-                                    '📢 View Channel',
-
-                                url:
-                                    'https://whatsapp.com/channel/0029Vb87tM1D8SE7qCVjbq3U'
-                            })
-                    }
-                ]
-            }
-        );
 
     } catch (error) {
 
@@ -133,14 +96,8 @@ ${BOT}
             error
         );
 
-        const TOP =
-            '╭━━━━━━━━━━━━━━━━━━━━❄️';
-
-        const BOT =
-            '╰━━━━━━━━━━━━━━━━━━━━❄️';
-
         await m.reply(
-`${TOP}
+`╭━━━━━━━━━━━━━━━━━━━━❄️
 ┃
 ┃ ❄️ *𝗙𝗥𝗘𝗘𝗭𝗘𝗥-𝗠𝗗*
 ┃
@@ -148,7 +105,7 @@ ${BOT}
 ┃
 ┃ ${error?.message || 'Unknown error'}
 ┃
-${BOT}`
+╰━━━━━━━━━━━━━━━━━━━━❄️`
         );
     }
 });
