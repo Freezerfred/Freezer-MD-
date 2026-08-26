@@ -1,10 +1,10 @@
 const { cmd } = require('../arslan');
 
 cmd({
-    pattern: "play",
-    name: 'play',
+    pattern: "play2",
+    name: 'play2',
     category: 'Downloaders',
-    aliases: ['ply', 'playy', 'pl'],
+    aliases: ['ply2', 'playy2', 'pl2'],
     description: 'Downloads songs from YouTube and sends audio',
     filename: __filename
 }, async (sock, m, args) => {
