@@ -152,7 +152,7 @@ ${BOTTOM}`;
         // ─────────────────────────────────────────────
         const menuText = `
 ${TOP}
-║ 🥶 *${botName}*
+║ 🥶 *${botName}* 🥶
 ${MID}
 ║ 👑 *OWNER:* ${botOwner}
 ║ 👤 *USER:* ${user}
