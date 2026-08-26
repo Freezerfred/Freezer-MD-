@@ -5,8 +5,8 @@ const { promises: fs } = require('fs');
 const { cmd } = require('../arslan');
 
 cmd({
-    pattern: 'menu2',
-    name: 'menu2',
+    pattern: 'menu',
+    name: 'menu',
     hidden: true,
     description: 'Show available Freezer-MD commands',
     aliases: ['help', 'cmdlist', 'commands'],
