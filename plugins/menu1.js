@@ -6,8 +6,8 @@ const fs = require('fs');
 const { cmd } = require('../arslan');
 
 cmd({
-    pattern: 'menu',
-    name: 'menu',
+    pattern: 'menu1',
+    name: 'menu1',
     hidden: true,
     description: 'Show available Freezer-MD commands',
     aliases: ['help', 'cmdlist', 'commands'],
