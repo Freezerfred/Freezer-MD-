@@ -1,4 +1,3 @@
-```javascript
 'use strict';
 
 const { cmd } = require('../arslan');
@@ -81,4 +80,3 @@ cmd({
         );
     }
 });
-```
