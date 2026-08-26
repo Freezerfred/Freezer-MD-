@@ -2,7 +2,6 @@
 
 const axios = require('axios');
 const fs = require('fs');
-const path = require('path');
 
 const { cmd } = require('../arslan');
 
@@ -17,44 +16,68 @@ cmd({
     filename: __filename
 }, async (sock, m, args) => {
 
-    let filePath = null;
-
     try {
+
         if (!args.length) {
             return await m.reply(
-`ᴜsᴀɢᴇ: .ᴛɪᴋᴛᴏᴋ <ᴜʀʟ>
-
-ᴇxᴀᴍᴘʟᴇ: .ᴛɪᴋᴛᴏᴋ https://vt.tiktok.com/ZSrRVYRUJ/`
+`╭━━〔 🥶 FREEZER-MD 〕━━╮
+┃
+┃ 🎵 *TikTok Downloader*
+┃
+┃ Usage:
+┃ .tiktok <url>
+┃
+┃ Example:
+┃ .tiktok https://vt.tiktok.com/...
+┃
+╰━━━━━━━━━━━━━━━━━━━━╯`
             );
         }
 
-        const url = args[0].trim();
+        const url = args[0];
 
-        if (!/^https?:\/\/([a-z0-9-]+\.)?tiktok\.com\//i.test(url)) {
+        if (!/tiktok\.com/i.test(url)) {
             return await m.reply(
-                'ᴘʟᴇᴀsᴇ ᴘʀᴏᴠɪᴅᴇ ᴀ ᴠᴀʟɪᴅ ᴛɪᴋᴛᴏᴋ ᴜʀʟ'
+`╭━━〔 🥶 FREEZER-MD 〕━━╮
+┃
+┃ ❌ *Invalid TikTok URL*
+┃
+┃ Please provide a valid
+┃ TikTok video link.
+┃
+╰━━━━━━━━━━━━━━━━━━━━╯`
             );
         }
+
+        await m.react('⌛');
 
         await m.reply(
-            'ᴅᴏᴡɴʟᴏᴀᴅɪɴɢ ᴛɪᴋᴛᴏᴋ ᴠɪᴅᴇᴏ...'
+`╭━━〔 🥶 FREEZER-MD 〕━━╮
+┃
+┃ 🎵 *TikTok Downloader*
+┃
+┃ ⏳ Downloading video...
+┃
+╰━━━━━━━━━━━━━━━━━━━━╯`
         );
 
         const apiUrl =
             `https://api-rebix.zone.id/api/tiktok2?url=${encodeURIComponent(url)}`;
 
-        const response = await axios.get(apiUrl, {
-            timeout: 30000
-        });
+        const response = await axios.get(apiUrl);
 
-        if (
-            !response.data?.status ||
-            !response.data?.result
-        ) {
+        if (!response.data.status || !response.data.result) {
+            await m.react('❌');
+
             return await m.reply(
-`ғᴀɪʟᴇᴅ ᴛᴏ ғᴇᴛᴄʜ ᴛɪᴋᴛᴏᴋ ᴠɪᴅᴇᴏ
-
-ᴘʟᴇᴀsᴇ ᴛʀʏ ᴀɢᴀɪɴ ʟᴀᴛᴇʀ.`
+`╭━━〔 🥶 FREEZER-MD 〕━━╮
+┃
+┃ ❌ *Download Failed*
+┃
+┃ Failed to fetch the TikTok
+┃ video. Please try again.
+┃
+╰━━━━━━━━━━━━━━━━━━━━╯`
             );
         }
 
@@ -62,101 +85,86 @@ cmd({
         const videoUrl = result.play;
 
         if (!videoUrl) {
+            await m.react('❌');
+
             return await m.reply(
-                'ɴᴏ ᴠɪᴅᴇᴏ ᴜʀʟ ғᴏᴜɴᴅ'
+`╭━━〔 🥶 FREEZER-MD 〕━━╮
+┃
+┃ ❌ *Video Not Found*
+┃
+┃ No downloadable video URL
+┃ was returned by the API.
+┃
+╰━━━━━━━━━━━━━━━━━━━━╯`
             );
         }
 
         const videoResponse = await axios.get(videoUrl, {
-            responseType: 'arraybuffer',
-            timeout: 120000,
-            maxContentLength: 100 * 1024 * 1024,
-            maxBodyLength: 100 * 1024 * 1024
+            responseType: 'arraybuffer'
         });
 
         const videoBuffer = Buffer.from(videoResponse.data);
 
-        const tempDir = path.join(
-            __dirname,
-            '../temp'
-        );
+        const tempDir = './temp';
 
         if (!fs.existsSync(tempDir)) {
-            fs.mkdirSync(tempDir, {
-                recursive: true
-            });
+            fs.mkdirSync(tempDir, { recursive: true });
         }
 
-        const videoId =
-            String(result.id || Date.now())
-                .replace(/[^a-zA-Z0-9_-]/g, '');
+        const fileName = `tiktok_${result.id || Date.now()}.mp4`;
+        const filePath = `${tempDir}/${fileName}`;
 
-        filePath = path.join(
-            tempDir,
-            `tiktok_${videoId}.mp4`
-        );
-
-        fs.writeFileSync(
-            filePath,
-            videoBuffer
-        );
+        fs.writeFileSync(filePath, videoBuffer);
 
         const caption =
-`*🥶 FREEZER-MD TIKTOK DOWNLOADER*
+`╭━━〔 🥶 FREEZER-MD 〕━━╮
+┃
+┃ 🎵 *TikTok Downloader*
+┃
+┃ 📝 Title: ${result.title || 'Unknown'}
+┃ ⏱️ Duration: ${result.duration || 0}s
+┃ 👁️ Views: ${Number(result.play_count || 0).toLocaleString()}
+┃ ❤️ Likes: ${Number(result.digg_count || 0).toLocaleString()}
+┃ 💬 Comments: ${Number(result.comment_count || 0).toLocaleString()}
+┃ 🔄 Shares: ${Number(result.share_count || 0).toLocaleString()}
+┃
+┃ 👤 Author:
+┃ ${result.author?.nickname || 'Unknown'}
+┃ @${result.author?.unique_id || 'unknown'}
+┃
+╰━━━━━━━━━━━━━━━━━━━━╯
+> 🥶 POWERED BY FREEZER-MD`;
 
-ᴛɪᴛʟᴇ: ${result.title || 'ɴᴏ ᴛɪᴛʟᴇ'}
-ᴅᴜʀᴀᴛɪᴏɴ: ${result.duration || 0}s
-ᴠɪᴇᴡs: ${result.play_count || 0}
-ʟɪᴋᴇs: ${result.digg_count || 0}
-ᴄᴏᴍᴍᴇɴᴛs: ${result.comment_count || 0}
-sʜᴀʀᴇs: ${result.share_count || 0}
+        await sock.sendMessage(m.from, {
+            video: videoBuffer,
+            caption,
+            mimetype: 'video/mp4'
+        });
 
-ᴀᴜᴛʜᴏʀ: ${result.author?.nickname || 'ᴜɴᴋɴᴏᴡɴ'}
-@${result.author?.unique_id || 'ᴜɴᴋɴᴏᴡɴ'}
+        // Remove temporary file after successful upload
+        if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+        }
 
-*ᴅᴏᴡɴʟᴏᴀᴅᴇᴅ ʙʏ 🥶 FREEZER-MD*`;
-
-        await sock.sendMessage(
-            m.from,
-            {
-                video: videoBuffer,
-                caption,
-                mimetype: 'video/mp4'
-            },
-            {
-                quoted: m.key
-            }
-        );
+        await m.react('✅');
 
     } catch (err) {
 
-        console.error(
-            '[FREEZER-MD] TikTok Error:',
-            err
-        );
+        console.error('[FREEZER-MD TIKTOK]', err);
+
+        await m.react('❌').catch(() => {});
 
         await m.reply(
-`❌ *FREEZER-MD ERROR*
-
-ғᴀɪʟᴇᴅ ᴛᴏ ᴅᴏᴡɴʟᴏᴀᴅ ᴛʜᴇ ᴠɪᴅᴇᴏ.
-
-ᴘʟᴇᴀsᴇ ᴛʀʏ ᴀɢᴀɪɴ ʟᴀᴛᴇʀ.`
+`╭━━〔 🥶 FREEZER-MD 〕━━╮
+┃
+┃ ❌ *TikTok Download Error*
+┃
+┃ ${err.message || 'Something went wrong.'}
+┃
+┃ Please try again later.
+┃
+╰━━━━━━━━━━━━━━━━━━━━╯
+> 🥶 POWERED BY FREEZER-MD`
         );
-
-    } finally {
-
-        if (
-            filePath &&
-            fs.existsSync(filePath)
-        ) {
-            try {
-                fs.unlinkSync(filePath);
-            } catch (cleanupError) {
-                console.error(
-                    '[FREEZER-MD] Temp cleanup error:',
-                    cleanupError
-                );
-            }
-        }
     }
 });
