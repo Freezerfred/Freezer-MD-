@@ -1,3 +1,4 @@
+```javascript
 'use strict';
 
 const { cmd } = require('../arslan');
@@ -12,80 +13,53 @@ cmd({
 }, async (sock, m) => {
 
     try {
-
-        // ─────────────────────────────────────────────
-        // REAL RESPONSE MEASUREMENT
-        // ─────────────────────────────────────────────
-
         const start = process.hrtime.bigint();
 
-        const response = await sock.sendMessage(m.from, {
-            text: '❄️ *FREEZER-MD* • Checking response...'
+        const sent = await sock.sendMessage(m.from, {
+            text: '❄️ *FREEZER-MD*'
         });
 
         const end = process.hrtime.bigint();
 
         const ms = Math.max(
             1,
-            Math.round(
-                Number(end - start) / 1_000_000
-            )
+            Math.round(Number(end - start) / 1_000_000)
         );
 
-        // ─────────────────────────────────────────────
-        // RESPONSE STATUS
-        // ─────────────────────────────────────────────
-
         const status =
-            ms <= 150 ? '⚡ Excellent' :
-            ms <= 400 ? '🚀 Fast' :
-            ms <= 800 ? '🟢 Stable' :
-            '🟡 Slow';
-
-        // ─────────────────────────────────────────────
-        // FREEZER-MD DESIGN
-        // ─────────────────────────────────────────────
-
-        const TOP =
-            '╭━━━━━━━━━━━━━━━━━━━━❄️';
-
-        const MID =
-            '┣━━━━━━━━━━━━━━━━━━━━❄️';
-
-        const BOT =
-            '╰━━━━━━━━━━━━━━━━━━━━❄️';
+            ms <= 150 ? '⚡ EXCELLENT' :
+            ms <= 400 ? '🚀 FAST' :
+            ms <= 800 ? '🟢 STABLE' :
+            '🟡 SLOW';
 
         const pingText =
-`${TOP}
+`╭━━━〔 ❄️ 𝗙𝗥𝗘𝗘𝗭𝗘𝗥-𝗠𝗗 〕━━━╮
 ┃
-┃ ❄️ *𝗙𝗥𝗘𝗘𝗭𝗘𝗥-𝗠𝗗*
+┃   🏓 *𝗣𝗢𝗡𝗚*
 ┃
-${MID}
-┃ 🏓 *Pong:* ${ms}ms
-┃ 📡 *Status:* ${status}
+┣━━━━━━━━━━━━━━━━━━━━━━❄️
 ┃
-${BOT}
-
-❄️ *FAST • STABLE • POWERFUL*
-> *BUILT DIFFERENT.*`;
-
-        // ─────────────────────────────────────────────
-        // EDIT ORIGINAL MESSAGE
-        // ─────────────────────────────────────────────
+┃ ⚡ Response : *${ms}ms*
+┃ 📡 Status   : *${status}*
+┃
+┣━━━━━━━━━━━━━━━━━━━━━━❄️
+┃
+┃ ❄️ *𝗙𝗔𝗦𝗧 • 𝗦𝗧𝗔𝗕𝗟𝗘*
+┃    *𝗕𝗨𝗜𝗟𝗧 𝗗𝗜𝗙𝗙𝗘𝗥𝗘𝗡𝗧*
+┃
+╰━━━━━━━━━━━━━━━━━━━━━━❄️`;
 
         try {
-
-            await sock.sendMessage(
-                m.from,
-                {
-                    text: pingText,
-                    edit: response.key
-                }
+            await sock.sendMessage(m.from, {
+                text: pingText,
+                edit: sent.key
+            });
+        } catch (editError) {
+            console.error(
+                '[FREEZER-MD] Ping edit error:',
+                editError.message
             );
 
-        } catch (editError) {
-
-            // Fallback if message editing isn't supported
             await m.reply(pingText);
         }
 
@@ -97,15 +71,14 @@ ${BOT}
         );
 
         await m.reply(
-`╭━━━━━━━━━━━━━━━━━━━━❄️
+`╭━━━〔 ❄️ 𝗙𝗥𝗘𝗘𝗭𝗘𝗥-𝗠𝗗 〕━━━╮
 ┃
-┃ ❄️ *𝗙𝗥𝗘𝗘𝗭𝗘𝗥-𝗠𝗗*
-┃
-┃ ❌ *Ping failed*
+┃ ❌ *𝗣𝗜𝗡𝗚 𝗙𝗔𝗜𝗟𝗘𝗗*
 ┃
 ┃ ${error?.message || 'Unknown error'}
 ┃
-╰━━━━━━━━━━━━━━━━━━━━❄️`
+╰━━━━━━━━━━━━━━━━━━━━━━❄️`
         );
     }
 });
+```
