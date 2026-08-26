@@ -153,7 +153,6 @@ ${BOTTOM}`;
         const menuText = `
 ${TOP}
 ║ 🥶 *${botName}*
-║ ✨ *MULTI-DEVICE*
 ${MID}
 ║ 👑 *OWNER:* ${botOwner}
 ║ 👤 *USER:* ${user}
