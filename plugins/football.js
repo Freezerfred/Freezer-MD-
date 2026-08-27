@@ -1,400 +1,302 @@
-'use strict';
-
 const { cmd } = require('../arslan');
 const axios = require('axios');
+const NodeCache = require('node-cache');
 
-// ============================================================
-// CONFIGURATION – set these in your .env file
-// ============================================================
-const API_URL = process.env.FOOTBALL_API_URL || 'https://v3.football.api-sports.io';
-const API_KEY = process.env.FOOTBALL_API_KEY || '';
-const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
-const TIMEZONE = 'Africa/Nairobi';
-const MAX_WIDTH = 40;
+// ---------------------- CONFIGURATION ----------------------
+const API_KEY = process.env.FOOTBALL_API_KEY || '919d60c7f36f46589bc502c0e3e49b50';
+const BASE_URL = 'https://api.football-data.org/v4';
 
-// ============================================================
-// LEAGUE MAPPING
-// ============================================================
-const LEAGUE_MAP = {
-    epl: 39,
-    'premier league': 39,
-    'la liga': 140,
-    bundesliga: 78,
-    'serie a': 135,
-    'ligue 1': 61,
-    'champions league': 2,
-    'europa league': 3,
-    'conference league': 848,
+const LEAGUES = {
+    'PL': 'Premier League',
+    'PD': 'La Liga',
+    'BL1': 'Bundesliga',
+    'SA': 'Serie A',
+    'FL1': 'Ligue 1',
+    'CL': 'UEFA Champions League',
+    'EL': 'UEFA Europa League',
+    'WC': 'FIFA World Cup',
+    'EC': 'UEFA European Championship'
 };
-const TOP_LEAGUES = [39, 140, 78, 135, 61];
 
-// ============================================================
-// IN‑MEMORY CACHE
-// ============================================================
-const cache = {};
+const cache = new NodeCache({ stdTTL: 600 });
 
-function getCached(key) {
-    const entry = cache[key];
-    if (!entry) return null;
-    if (Date.now() - entry.timestamp > CACHE_TTL) {
-        delete cache[key];
-        return null;
-    }
-    return entry.data;
-}
-
-function setCached(key, data) {
-    cache[key] = { data, timestamp: Date.now() };
-}
-
-// ============================================================
-// HELPER FUNCTIONS
-// ============================================================
-
-function getSeason() {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth() + 1;
-    return month >= 8 ? year : year - 1;
-}
-
-function formatDate(date) {
-    const d = new Date(date);
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-}
-
-function addDays(date, days) {
-    const d = new Date(date);
-    d.setDate(d.getDate() + days);
-    return d;
-}
-
-function formatTime(datetime) {
-    const d = new Date(datetime);
-    return d.toLocaleString('en-KE', {
-        timeZone: TIMEZONE,
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true,
+function formatDate(dateStr) {
+    const d = new Date(dateStr);
+    return d.toLocaleString('en-US', { 
+        weekday: 'short', 
+        day: '2-digit', 
+        month: 'short', 
+        hour: '2-digit', 
+        minute: '2-digit' 
     });
 }
 
-function getLeagueId(name) {
-    const key = name.toLowerCase().trim();
-    return LEAGUE_MAP[key] || null;
+function getLeagueName(code) {
+    return LEAGUES[code] || code || 'Unknown League';
 }
 
-function getLeagueNameFromId(id) {
-    for (const [name, lid] of Object.entries(LEAGUE_MAP)) {
-        if (lid === id) return name;
-    }
-    return 'Unknown';
-}
-
-// ============================================================
-// API FETCH WITH CACHING
-// ============================================================
-async function fetchAPI(endpoint, params = {}) {
-    if (!API_KEY) {
-        throw new Error('API key not configured. Please set FOOTBALL_API_KEY in .env');
-    }
-
-    const cacheKey = endpoint + JSON.stringify(params);
-    const cached = getCached(cacheKey);
-    if (cached) return cached;
-
+async function fetchFromAPI(endpoint) {
     try {
-        const response = await axios.get(`${API_URL}${endpoint}`, {
-            params,
-            headers: {
-                'x-rapidapi-key': API_KEY,
-                'x-rapidapi-host': 'v3.football.api-sports.io',
-            },
-            timeout: 10000,
+        const response = await axios.get(`${BASE_URL}${endpoint}`, {
+            headers: { 'X-Auth-Token': API_KEY },
+            timeout: 15000
         });
-
-        if (response.status !== 200) {
-            throw new Error(`API returned status ${response.status}`);
+        return response.data;
+    } catch (error) {
+        if (error.response) {
+            throw new Error(`API Error ${error.response.status}: ${error.response.data.message || error.response.statusText}`);
         }
-
-        const data = response.data;
-        if (data.errors && Object.keys(data.errors).length > 0) {
-            const errMsg = Object.values(data.errors).join(', ');
-            throw new Error(`API error: ${errMsg}`);
-        }
-
-        setCached(cacheKey, data);
-        return data;
-    } catch (err) {
-        if (err.code === 'ECONNABORTED') {
-            throw new Error('API request timed out. Please try again later.');
-        }
-        if (err.response) {
-            throw new Error(`API error: ${err.response.status} - ${err.response.statusText}`);
-        }
-        throw err;
+        throw new Error(error.message || 'Failed to fetch data');
     }
 }
 
-// ============================================================
-// DATA RETRIEVAL
-// ============================================================
-
-async function getFixtures(leagueId, date, status = null) {
-    const params = {
-        league: leagueId,
-        season: getSeason(),
-        date: formatDate(date),
-    };
-    if (status) params.status = status;
-    const data = await fetchAPI('/fixtures', params);
-    return data.response || [];
-}
-
-async function getLiveFixtures() {
-    const data = await fetchAPI('/fixtures', { live: 'all' });
-    return data.response || [];
-}
-
-async function getStandings(leagueId) {
-    const params = {
-        league: leagueId,
-        season: getSeason(),
-    };
-    const data = await fetchAPI('/standings', params);
-    const standings = data.response?.[0]?.league?.standings?.[0] || [];
-    return standings;
-}
-
-async function searchTeam(name) {
-    const data = await fetchAPI('/teams', { search: name });
-    return data.response || [];
-}
-
-async function getTeamFixtures(teamId, fromDate, toDate) {
-    const params = {
-        team: teamId,
-        season: getSeason(),
-        from: formatDate(fromDate),
-        to: formatDate(toDate),
-    };
-    const data = await fetchAPI('/fixtures', params);
-    return data.response || [];
-}
-
-// ============================================================
-// FORMATTING
-// ============================================================
-
-function createBorder(title, lines) {
-    const sep = '━'.repeat(MAX_WIDTH - 2);
-    const header = `╭${sep}╮`;
-    const footer = `╰${sep}╯`;
-    const titleLine = `┃ ❄️ FREEZER-MD${' '.repeat(MAX_WIDTH - 19)}┃`;
-    const divider = `┣${sep}┫`;
-    const content = lines.map(line => `┃ ${line.padEnd(MAX_WIDTH - 4)} ┃`);
-
-    return [header, titleLine, divider, ...content, footer].join('\n');
-}
-
-function formatMatch(match) {
-    const home = match.teams?.home?.name || 'Unknown';
-    const away = match.teams?.away?.name || 'Unknown';
-    const status = match.fixture?.status || {};
-    const short = status.short || '';
-    const elapsed = status.elapsed || '';
-    const date = match.fixture?.date;
-    const time = date ? formatTime(date) : '';
-
-    let score = '';
-    let statusText = '';
-    const goalsHome = match.goals?.home;
-    const goalsAway = match.goals?.away;
-
-    if (short === 'FT' || short === 'PEN' || short === 'AET') {
-        score = `${goalsHome ?? '?'} - ${goalsAway ?? '?'}`;
-        statusText = '✅ Finished';
-    } else if (short === 'LIVE' || short === '1H' || short === '2H' || short === 'HT' || short === 'ET') {
-        score = `${goalsHome ?? '0'} - ${goalsAway ?? '0'}`;
-        statusText = `🟢 LIVE • ${elapsed ? elapsed + "'" : ' '}`;
-    } else if (short === 'NS' || short === 'TBD') {
-        score = '🆚';
-        statusText = `🕐 ${time}`;
-    } else {
-        score = '🆚';
-        statusText = `⏳ ${short || 'Scheduled'}`;
+async function getTeamsForLeague(leagueCode) {
+    const cacheKey = `teams_${leagueCode}`;
+    let teams = cache.get(cacheKey);
+    if (!teams) {
+        const data = await fetchFromAPI(`/competitions/${leagueCode}/teams`);
+        teams = data.teams || [];
+        cache.set(cacheKey, teams);
     }
-
-    const homeShort = home.length > 16 ? home.slice(0, 14) + '…' : home;
-    const awayShort = away.length > 16 ? away.slice(0, 14) + '…' : away;
-    return `${homeShort} ${score} ${awayShort}   ${statusText}`;
+    return teams;
 }
 
-function formatStandings(standings) {
-    if (!standings || standings.length === 0) return ['No standings available.'];
-    return standings.slice(0, 10).map((team, idx) => {
-        const pos = (idx + 1).toString().padStart(2);
-        const name = team.team?.name || 'Unknown';
-        const shortName = name.length > 14 ? name.slice(0, 12) + '…' : name;
-        const pts = team.points ?? 0;
-        const played = team.all?.played ?? 0;
-        return `${pos}. ${shortName.padEnd(16)} P:${played}  Pts:${pts}`;
-    });
+function findTeam(teams, searchName) {
+    const normalized = searchName.toLowerCase().trim();
+    let found = teams.find(t => t.name.toLowerCase() === normalized);
+    if (found) return found;
+    found = teams.find(t => t.name.toLowerCase().startsWith(normalized));
+    if (found) return found;
+    found = teams.find(t => t.name.toLowerCase().includes(normalized));
+    return found || null;
 }
 
-// ============================================================
-// COMMAND HANDLER
-// ============================================================
+// ===================== COMMANDS =====================
+// All commands: livescore, standings, fixtures, scorers, team, matchinfo, football
+
+cmd({
+    pattern: 'livescore',
+    alias: ['live', 'score', 'scores'],
+    desc: 'Get live football scores (filter by league)',
+    category: 'football',
+    use: '.livescore [league_code]',
+    filename: __filename
+}, async (sock, m, text) => {
+    try {
+        await sock.sendPresenceUpdate('composing', m.chat);
+        const leagueCode = text ? text.trim().toUpperCase() : null;
+        const data = await fetchFromAPI('/matches');
+        const matches = data.matches || [];
+        const liveMatches = matches.filter(m => ['LIVE', 'IN_PLAY', 'PAUSED'].includes(m.status));
+        const filtered = leagueCode ? liveMatches.filter(m => m.competition?.code === leagueCode) : liveMatches;
+        if (filtered.length === 0) {
+            const msg = leagueCode ? `⚽ No live matches in ${getLeagueName(leagueCode)} right now.` : '⚽ No live matches at the moment.';
+            return await m.reply(msg);
+        }
+        let response = '⚽ *LIVE SCORES* ⚽\n' + '─'.repeat(30) + '\n\n';
+        filtered.forEach(m => {
+            const home = m.homeTeam?.name || 'TBD';
+            const away = m.awayTeam?.name || 'TBD';
+            const scoreHome = m.score?.fullTime?.home ?? m.score?.halfTime?.home ?? '-';
+            const scoreAway = m.score?.fullTime?.away ?? m.score?.halfTime?.away ?? '-';
+            const league = getLeagueName(m.competition?.code);
+            const minute = m.minute || '??';
+            response += `🏆 *${league}*\n🕐 ${minute}'\n🔴 ${home} ${scoreHome} - ${scoreAway} ${away}\n─`.repeat(25) + '\n';
+        });
+        await m.reply(response);
+    } catch (error) {
+        console.error('Livescore error:', error);
+        await m.reply(`❌ ${error.message}`);
+    }
+});
+
+cmd({
+    pattern: 'standings',
+    alias: ['table', 'league', 'standing'],
+    desc: 'Get league standings/table',
+    category: 'football',
+    use: '.standings <league_code>',
+    filename: __filename
+}, async (sock, m, text) => {
+    if (!text) return await m.reply(`❌ Provide league code.\nAvailable: ${Object.keys(LEAGUES).join(', ')}`);
+    const leagueCode = text.trim().toUpperCase();
+    if (!LEAGUES[leagueCode]) return await m.reply(`❌ Invalid code. Use: ${Object.keys(LEAGUES).join(', ')}`);
+    try {
+        await sock.sendPresenceUpdate('composing', m.chat);
+        const data = await fetchFromAPI(`/competitions/${leagueCode}/standings`);
+        const standings = data.standings?.[0]?.table || [];
+        if (standings.length === 0) return await m.reply(`❌ No standings for ${getLeagueName(leagueCode)}.`);
+        let response = `🏆 *${getLeagueName(leagueCode)} STANDINGS* 🏆\n─`.repeat(35) + '\n\n';
+        standings.slice(0, 10).forEach((team, index) => {
+            const pos = index + 1;
+            const name = team.team?.name || 'Unknown';
+            const p = team.playedGames || 0, w = team.won || 0, d = team.draw || 0, l = team.lost || 0;
+            const pts = team.points || 0, gd = team.goalDifference || 0;
+            const medal = pos === 1 ? '🥇' : pos === 2 ? '🥈' : pos === 3 ? '🥉' : `${pos}.`;
+            response += `${medal} *${name}*\n   P:${p} W:${w} D:${d} L:${l} GD:${gd} PTS:${pts}\n\n`;
+        });
+        await m.reply(response);
+    } catch (error) {
+        console.error('Standings error:', error);
+        await m.reply(`❌ ${error.message}`);
+    }
+});
+
+cmd({
+    pattern: 'fixtures',
+    alias: ['fixture', 'matches', 'schedule'],
+    desc: 'Get upcoming fixtures (with Match ID for .matchinfo)',
+    category: 'football',
+    use: '.fixtures <league_code>',
+    filename: __filename
+}, async (sock, m, text) => {
+    if (!text) return await m.reply(`❌ Provide league code.\nAvailable: ${Object.keys(LEAGUES).join(', ')}`);
+    const leagueCode = text.trim().toUpperCase();
+    if (!LEAGUES[leagueCode]) return await m.reply(`❌ Invalid code. Use: ${Object.keys(LEAGUES).join(', ')}`);
+    try {
+        await sock.sendPresenceUpdate('composing', m.chat);
+        const data = await fetchFromAPI(`/competitions/${leagueCode}/matches`);
+        const upcoming = (data.matches || []).filter(m => ['SCHEDULED', 'TIMED'].includes(m.status)).slice(0, 10);
+        if (upcoming.length === 0) return await m.reply(`❌ No upcoming fixtures for ${getLeagueName(leagueCode)}.`);
+        let response = `📅 *${getLeagueName(leagueCode)} FIXTURES* 📅\n─`.repeat(35) + '\n\n';
+        upcoming.forEach(m => {
+            const home = m.homeTeam?.name || 'TBD';
+            const away = m.awayTeam?.name || 'TBD';
+            response += `⚔️ ${home} vs ${away}\n📆 ${formatDate(m.utcDate)}\n📍 ${m.stage || 'Matchday'}\n📌 ID: ${m.id}\n─`.repeat(25) + '\n';
+        });
+        await m.reply(response);
+    } catch (error) {
+        console.error('Fixtures error:', error);
+        await m.reply(`❌ ${error.message}`);
+    }
+});
+
+cmd({
+    pattern: 'scorers',
+    alias: ['topscorers', 'goals', 'topscorer'],
+    desc: 'Get top scorers for a league',
+    category: 'football',
+    use: '.scorers <league_code>',
+    filename: __filename
+}, async (sock, m, text) => {
+    if (!text) return await m.reply(`❌ Provide league code.\nAvailable: ${Object.keys(LEAGUES).join(', ')}`);
+    const leagueCode = text.trim().toUpperCase();
+    if (!LEAGUES[leagueCode]) return await m.reply(`❌ Invalid code. Use: ${Object.keys(LEAGUES).join(', ')}`);
+    try {
+        await sock.sendPresenceUpdate('composing', m.chat);
+        const data = await fetchFromAPI(`/competitions/${leagueCode}/scorers`);
+        const scorers = data.scorers || [];
+        if (scorers.length === 0) return await m.reply(`❌ No scorer data for ${getLeagueName(leagueCode)}.`);
+        let response = `⚽ *${getLeagueName(leagueCode)} TOP SCORERS* ⚽\n─`.repeat(35) + '\n\n';
+        scorers.slice(0, 10).forEach((s, i) => {
+            const name = s.player?.name || 'Unknown';
+            const team = s.team?.name || 'Unknown';
+            const goals = s.goals || 0;
+            const assists = s.assists || 0;
+            const pens = s.penalties || 0;
+            response += `${i+1}. *${name}* (${team})\n   ⚽ ${goals} goals${assists > 0 ? `, 🅰️ ${assists} assists` : ''}${pens > 0 ? `, ⚪ ${pens} pen.` : ''}\n\n`;
+        });
+        await m.reply(response);
+    } catch (error) {
+        console.error('Scorers error:', error);
+        await m.reply(`❌ ${error.message}`);
+    }
+});
+
+cmd({
+    pattern: 'team',
+    alias: ['teaminfo', 'club'],
+    desc: 'Get detailed info about a team (stadium, coach, squad)',
+    category: 'football',
+    use: '.team <league_code> <team_name>\nExample: .team PL Arsenal',
+    filename: __filename
+}, async (sock, m, text) => {
+    if (!text) return await m.reply(`❌ Usage: .team <league_code> <team_name>\nExample: .team PL Arsenal`);
+    const parts = text.trim().split(/\s+/);
+    if (parts.length < 2) return await m.reply(`❌ Provide both league and team name.\nExample: .team PL Arsenal`);
+    const leagueCode = parts[0].toUpperCase();
+    const teamName = parts.slice(1).join(' ');
+    if (!LEAGUES[leagueCode]) return await m.reply(`❌ Invalid league code. Use: ${Object.keys(LEAGUES).join(', ')}`);
+    try {
+        await sock.sendPresenceUpdate('composing', m.chat);
+        const teams = await getTeamsForLeague(leagueCode);
+        const team = findTeam(teams, teamName);
+        if (!team) return await m.reply(`❌ Team "${teamName}" not found in ${getLeagueName(leagueCode)}.`);
+        const teamData = await fetchFromAPI(`/teams/${team.id}`);
+        let response = `🏛️ *${teamData.name}* (${teamData.tla || 'N/A'})\n─`.repeat(30) + '\n';
+        response += `📍 *Stadium:* ${teamData.venue || 'N/A'}\n🏷️ *Founded:* ${teamData.founded || 'N/A'}\n🌍 *Country:* ${teamData.area?.name || 'N/A'}\n🎨 *Colors:* ${teamData.clubColors || 'N/A'}\n👨‍🏫 *Coach:* ${teamData.coach?.name || 'N/A'} (${teamData.coach?.nationality || 'N/A'})\n`;
+        const squad = teamData.squad || [];
+        if (squad.length > 0) {
+            response += `\n🧑‍🤝‍🧑 *Squad (first 11):*\n`;
+            response += squad.slice(0, 11).map(p => `  • ${p.name} (${p.position || 'N/A'})`).join('\n');
+            if (squad.length > 11) response += `\n  ... and ${squad.length - 11} more`;
+        }
+        await m.reply(response);
+    } catch (error) {
+        console.error('Team error:', error);
+        await m.reply(`❌ ${error.message}`);
+    }
+});
+
+cmd({
+    pattern: 'matchinfo',
+    alias: ['match', 'matchstats', 'md'],
+    desc: 'Get detailed stats for a specific match (use ID from .fixtures)',
+    category: 'football',
+    use: '.matchinfo <match_id>\nExample: .matchinfo 123456',
+    filename: __filename
+}, async (sock, m, text) => {
+    if (!text) return await m.reply(`❌ Provide a Match ID.\nGet it from .fixtures command.`);
+    const matchId = text.trim();
+    if (!/^\d+$/.test(matchId)) return await m.reply('❌ Match ID must be a number.');
+    try {
+        await sock.sendPresenceUpdate('composing', m.chat);
+        const data = await fetchFromAPI(`/matches/${matchId}`);
+        const home = data.homeTeam?.name || 'TBD';
+        const away = data.awayTeam?.name || 'TBD';
+        const competition = getLeagueName(data.competition?.code);
+        const status = data.status || 'UNKNOWN';
+        const ft = data.score?.fullTime || { home: null, away: null };
+        const ht = data.score?.halfTime || { home: null, away: null };
+        let response = `📊 *${home} vs ${away}* 📊\n🏆 ${competition}\n🕐 Status: ${status}\n─`.repeat(30) + '\n';
+        if (ft.home !== null && ft.away !== null) response += `⚽ Full-time: ${home} ${ft.home} - ${ft.away} ${away}\n`;
+        if (ht.home !== null && ht.away !== null) response += `⏱️ Half-time: ${home} ${ht.home} - ${ht.away} ${away}\n`;
+        const stats = data.stats || [];
+        if (stats.length > 0) {
+            response += `\n📈 Match Stats:\n`;
+            stats.forEach(stat => {
+                response += `  • ${stat.type || 'Stat'}: ${stat.homeValue ?? '—'} - ${stat.awayValue ?? '—'}\n`;
+            });
+        }
+        const refs = data.referees || [];
+        if (refs.length > 0) response += `\n👨‍⚖️ Referees:\n  • ${refs.map(r => `${r.name} (${r.role || 'N/A'})`).join('\n  • ')}`;
+        if (data.venue) response += `\n📍 Venue: ${data.venue}`;
+        await m.reply(response);
+    } catch (error) {
+        console.error('Match info error:', error);
+        await m.reply(`❌ ${error.message}`);
+    }
+});
 
 cmd({
     pattern: 'football',
-    name: 'football',
-    category: 'Tools',
-    description: 'Get live football fixtures, scores, standings and more',
-    aliases: ['soccer', 'fixtures', 'matches', 'scores'],
-    filename: __filename,
-}, async (sock, m, args) => {
-    try {
-        const sub = args[0] ? args[0].toLowerCase() : '';
-        const rest = args.slice(1);
+    alias: ['futbol', 'soccer'],
+    desc: 'Show all football commands',
+    category: 'football',
+    use: '.football',
+    filename: __filename
+}, async (sock, m) => {
+    await m.reply(`⚽ *FOOTBALL COMMANDS* ⚽
+─────────────────────
+📌 .livescore [code]  → Live scores
+📋 .standings <code>  → League table
+📅 .fixtures <code>   → Upcoming fixtures (shows Match IDs)
+🥅 .scorers <code>    → Top goal scorers
+🏛️ .team <code> <name> → Club info & squad
+📊 .matchinfo <id>    → Full match stats
 
-        // If sub is a known league, show today's fixtures for that league
-        if (getLeagueId(sub) !== null) {
-            const leagueId = getLeagueId(sub);
-            const fixtures = await getFixtures(leagueId, new Date());
-            if (fixtures.length === 0) {
-                return await sock.sendMessage(m.chat, { text: '❌ No matches found for today.' });
-            }
-            const leagueName = getLeagueNameFromId(leagueId);
-            const lines = fixtures.map(f => formatMatch(f));
-            const title = `📅 TODAY'S MATCHES • ${leagueName.toUpperCase()}`;
-            const box = createBorder(title, lines);
-            return await sock.sendMessage(m.chat, { text: box });
-        }
-
-        // Subcommands
-        switch (sub) {
-            case 'live': {
-                const fixtures = await getLiveFixtures();
-                if (fixtures.length === 0) {
-                    return await sock.sendMessage(m.chat, { text: '🟢 No live matches at the moment.' });
-                }
-                const lines = fixtures.map(f => formatMatch(f));
-                const box = createBorder('🔴 LIVE MATCHES', lines);
-                return await sock.sendMessage(m.chat, { text: box });
-            }
-
-            case 'tomorrow': {
-                const tomorrow = addDays(new Date(), 1);
-                let allFixtures = [];
-                for (const lid of TOP_LEAGUES) {
-                    const f = await getFixtures(lid, tomorrow);
-                    allFixtures = allFixtures.concat(f);
-                }
-                allFixtures.sort((a, b) => new Date(a.fixture.date) - new Date(b.fixture.date));
-                if (allFixtures.length === 0) {
-                    return await sock.sendMessage(m.chat, { text: '📅 No matches found for tomorrow.' });
-                }
-                const lines = allFixtures.map(f => formatMatch(f));
-                const box = createBorder('📅 TOMORROW\'S FIXTURES', lines);
-                return await sock.sendMessage(m.chat, { text: box });
-            }
-
-            case 'table': {
-                let leagueName = rest[0] || 'epl';
-                const leagueId = getLeagueId(leagueName);
-                if (!leagueId) {
-                    return await sock.sendMessage(m.chat, { text: `❌ Unknown league: "${leagueName}". Available: epl, la liga, bundesliga, serie a, ligue 1, champions league` });
-                }
-                const standings = await getStandings(leagueId);
-                if (standings.length === 0) {
-                    return await sock.sendMessage(m.chat, { text: `❌ No standings found for ${leagueName}.` });
-                }
-                const lines = formatStandings(standings);
-                const title = `🏆 STANDINGS • ${leagueName.toUpperCase()}`;
-                const box = createBorder(title, lines);
-                return await sock.sendMessage(m.chat, { text: box });
-            }
-
-            case 'team': {
-                if (!rest.length) {
-                    return await sock.sendMessage(m.chat, { text: '❌ Please provide a team name. Example: .football team Arsenal' });
-                }
-                const teamName = rest.join(' ');
-                const teams = await searchTeam(teamName);
-                if (teams.length === 0) {
-                    return await sock.sendMessage(m.chat, { text: `❌ Team "${teamName}" not found.` });
-                }
-                const team = teams[0];
-                const teamId = team.team.id;
-                const now = new Date();
-                const from = addDays(now, -7);
-                const to = addDays(now, 14);
-                const fixtures = await getTeamFixtures(teamId, from, to);
-                if (fixtures.length === 0) {
-                    return await sock.sendMessage(m.chat, { text: `📅 No recent or upcoming fixtures for ${team.team.name}.` });
-                }
-                fixtures.sort((a, b) => new Date(a.fixture.date) - new Date(b.fixture.date));
-                const lines = fixtures.map(f => formatMatch(f));
-                const title = `⚽ ${team.team.name.toUpperCase()} • FIXTURES`;
-                const box = createBorder(title, lines);
-                return await sock.sendMessage(m.chat, { text: box });
-            }
-
-            default: {
-                // If sub is non‑empty, treat as team search
-                if (sub.length > 0) {
-                    const teamName = args.join(' ');
-                    const teams = await searchTeam(teamName);
-                    if (teams.length === 0) {
-                        return await sock.sendMessage(m.chat, { text: `❌ Team "${teamName}" not found.` });
-                    }
-                    const team = teams[0];
-                    const teamId = team.team.id;
-                    const now = new Date();
-                    const from = addDays(now, -7);
-                    const to = addDays(now, 14);
-                    const fixtures = await getTeamFixtures(teamId, from, to);
-                    if (fixtures.length === 0) {
-                        return await sock.sendMessage(m.chat, { text: `📅 No recent or upcoming fixtures for ${team.team.name}.` });
-                    }
-                    fixtures.sort((a, b) => new Date(a.fixture.date) - new Date(b.fixture.date));
-                    const lines = fixtures.map(f => formatMatch(f));
-                    const title = `⚽ ${team.team.name.toUpperCase()}`;
-                    const box = createBorder(title, lines);
-                    return await sock.sendMessage(m.chat, { text: box });
-                }
-
-                // Default: show today's top league fixtures
-                let allFixtures = [];
-                for (const lid of TOP_LEAGUES) {
-                    const f = await getFixtures(lid, new Date());
-                    allFixtures = allFixtures.concat(f);
-                }
-                allFixtures.sort((a, b) => new Date(a.fixture.date) - new Date(b.fixture.date));
-                if (allFixtures.length === 0) {
-                    return await sock.sendMessage(m.chat, { text: '📅 No matches scheduled for today.' });
-                }
-                const lines = allFixtures.map(f => formatMatch(f));
-                const box = createBorder('📅 TODAY\'S TOP FIXTURES', lines);
-                return await sock.sendMessage(m.chat, { text: box });
-            }
-        }
-    } catch (error) {
-        console.error('Football plugin error:', error);
-        let msg = '❌ An error occurred while fetching football data.';
-        if (error.message.includes('API key')) {
-            msg = '❌ ' + error.message;
-        } else if (error.message.includes('timeout')) {
-            msg = '⏰ API request timed out. Please try again later.';
-        } else if (error.message.includes('rate limit')) {
-            msg = '⏳ API rate limit exceeded. Please wait a moment.';
-        } else if (error.message.includes('not found') || error.message.includes('404')) {
-            msg = '❌ Data not found. Please check your input.';
-        }
-        await sock.sendMessage(m.chat, { text: msg });
-    }
+─────────────────────
+League codes: ${Object.keys(LEAGUES).join(', ')}
+─────────────────────
+ℹ️ Free API provided by football-data.org`);
 });
