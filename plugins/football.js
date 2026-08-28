@@ -1,10 +1,17 @@
+
 const { cmd } = require('../arslan');
 const axios = require('axios');
 const NodeCache = require('node-cache');
 
 // ---------------------- CONFIGURATION ----------------------
-const API_KEY = process.env.FOOTBALL_API_KEY || '919d60c7f36f46589bc502c0e3e49b50';
+// 🔐 Always use environment variable – no hardcoded key
+const API_KEY = process.env.FOOTBALL_API_KEY;
+if (!API_KEY) {
+    console.error('❌ FOOTBALL_API_KEY is missing in .env file!');
+    process.exit(1); // Stop the bot if key is missing
+}
 const BASE_URL = 'https://api.football-data.org/v4';
+// ... rest of the code unchanged
 
 const LEAGUES = {
     'PL': 'Premier League',
