@@ -1,79 +1,144 @@
-/**
- * ╔══════════════════════════════════════════════════════════════╗
- * ║             🥶  FREEZER-MD  ·  VIEWONCE SAVER             ║
- * ║   Silently archives view‑once media to the sender's DM    ║
- * ╚══════════════════════════════════════════════════════════════╝
- */
-
-'use strict';
-
 const { cmd } = require('../arslan');
-const { downloadMediaMessage } = require('@whiskeysockets/baileys');
 
 cmd({
-    pattern: 'viewonce',
-    name: 'viewonce',
-    category: 'Tools',
-    description: 'Save view-once media (silent, sent to DM)',
-    aliases: ['vo', 'once'],
-    tags: ['tools'],
+    pattern: "viewonce",
+    name: "viewonce",
+    category: "Tools",
+    description: "Save view-once image, video or audio",
+    aliases: ["vo", "once"],
+    tags: ["tools", "media"],
     command: /^\.?(viewonce|vo|once)$/i,
     filename: __filename
 }, async (sock, m) => {
-
     try {
-        // ─── 1. Must be a reply ──────────────────────────────────────
-        if (!m.quoted) return;
-
-        const target = m.quoted;
-
-        // ─── 2. Verify view‑once flag ──────────────────────────────
-        const isViewOnce = target.message?.imageMessage?.viewOnce ||
-                           target.message?.videoMessage?.viewOnce ||
-                           target.message?.audioMessage?.viewOnce;
-
-        if (!isViewOnce) return;
-
-        // ─── 3. Download media ──────────────────────────────────────
-        let media;
-        let type;
-
-        if (target.message?.imageMessage) {
-            type = 'image';
-            media = await downloadMediaMessage(target, sock);
-        } else if (target.message?.videoMessage) {
-            type = 'video';
-            media = await downloadMediaMessage(target, sock);
-        } else if (target.message?.audioMessage) {
-            type = 'audio';
-            media = await downloadMediaMessage(target, sock);
-        } else {
-            return; // unsupported
+        // ❄️ Check quoted message
+        if (!m.quoted) {
+            return m.reply(
+                "❄️ *FREEZER-MD*\n\n" +
+                "╭─〔 VIEW ONCE 〕\n" +
+                "│ ❌ Please reply to a *View Once* media.\n" +
+                "│\n" +
+                "│ Usage: *.viewonce*\n" +
+                "╰──────────────"
+            );
         }
 
-        // ─── 4. Validate downloaded media ──────────────────────────
-        if (!media || !Buffer.isBuffer(media) || media.length === 0) {
-            console.warn(`🥶 Freezer-MD » Downloaded ${type} is empty or invalid`);
-            return;
+        const targetMsg = m.quoted;
+        const message = targetMsg.message || {};
+
+        console.log(
+            "❄️ Freezer-MD | Quoted message:",
+            Object.keys(message)
+        );
+
+        let mediaBuffer;
+        let mimeType;
+        let mediaType;
+
+        // 🖼️ IMAGE
+        if (message.imageMessage) {
+            console.log("❄️ Freezer-MD | Downloading image...");
+
+            mediaBuffer = await targetMsg.download();
+            mimeType = message.imageMessage.mimetype || "image/jpeg";
+            mediaType = "image";
         }
 
-        // (Optional) log size for debugging – remove after testing
-        console.log(`🥶 Freezer-MD » Downloaded ${type}, size: ${media.length} bytes`);
+        // 🎥 VIDEO
+        else if (message.videoMessage) {
+            console.log("❄️ Freezer-MD | Downloading video...");
 
-        // ─── 5. Send to DM without any caption ─────────────────────
-        if (type === 'image') {
-            await sock.sendMessage(m.sender, { image: media });
-        } else if (type === 'video') {
-            await sock.sendMessage(m.sender, { video: media });
-        } else { // audio
-            await sock.sendMessage(m.sender, { audio: media, ptt: false });
+            mediaBuffer = await targetMsg.download();
+            mimeType = message.videoMessage.mimetype || "video/mp4";
+            mediaType = "video";
         }
 
-        // ─── 6. Silent success log ──────────────────────────────────
-        console.log(`🥶 Freezer-MD » view‑once ${type} delivered to ${m.sender.split('@')[0]}`);
+        // 🎵 AUDIO
+        else if (message.audioMessage) {
+            console.log("❄️ Freezer-MD | Downloading audio...");
+
+            mediaBuffer = await targetMsg.download();
+            mimeType = message.audioMessage.mimetype || "audio/ogg";
+            mediaType = "audio";
+        }
+
+        // ❌ UNSUPPORTED
+        else {
+            return m.reply(
+                "❄️ *FREEZER-MD*\n\n" +
+                "╭─〔 VIEW ONCE 〕\n" +
+                "│ ❌ Unsupported media type.\n" +
+                "│\n" +
+                "│ Supported:\n" +
+                "│ 🖼️ Image\n" +
+                "│ 🎥 Video\n" +
+                "│ 🎵 Audio\n" +
+                "╰──────────────"
+            );
+        }
+
+        if (!mediaBuffer) {
+            throw new Error("Media download returned empty buffer");
+        }
+
+        console.log(
+            `❄️ Freezer-MD | ${mediaType} downloaded: ${mediaBuffer.length} bytes`
+        );
+
+        // 🖼️ SEND IMAGE
+        if (mediaType === "image") {
+            await sock.sendMessage(m.from, {
+                image: mediaBuffer,
+                mimetype: mimeType,
+                caption:
+                    "❄️ *FREEZER-MD*\n\n" +
+                    "╭─〔 VIEW ONCE 〕\n" +
+                    "│ ✅ Image saved successfully.\n" +
+                    "│\n" +
+                    "│ 🛡️ Protected by Freezer\n" +
+                    "╰──────────────"
+            });
+        }
+
+        // 🎥 SEND VIDEO
+        else if (mediaType === "video") {
+            await sock.sendMessage(m.from, {
+                video: mediaBuffer,
+                mimetype: mimeType,
+                caption:
+                    "❄️ *FREEZER-MD*\n\n" +
+                    "╭─〔 VIEW ONCE 〕\n" +
+                    "│ ✅ Video saved successfully.\n" +
+                    "│\n" +
+                    "│ 🛡️ Protected by Freezer\n" +
+                    "╰──────────────"
+            });
+        }
+
+        // 🎵 SEND AUDIO
+        else if (mediaType === "audio") {
+            await sock.sendMessage(m.from, {
+                audio: mediaBuffer,
+                mimetype: mimeType,
+                ptt: false
+            });
+        }
+
+        console.log(
+            `❄️ Freezer-MD | ${mediaType} sent successfully`
+        );
 
     } catch (error) {
-        // Never notify the user – only log
-        console.error('🥶 Freezer-MD » ViewOnce Error:', error);
+        console.error("❄️ Freezer-MD | ViewOnce Error:", error);
+
+        return m.reply(
+            "❄️ *FREEZER-MD*\n\n" +
+            "╭─〔 VIEW ONCE 〕\n" +
+            "│ ❌ Failed to save media.\n" +
+            "│\n" +
+            "│ Try replying directly to\n" +
+            "│ the View Once message.\n" +
+            "╰──────────────"
+        );
     }
 });
