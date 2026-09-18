@@ -1,47 +1,52 @@
-l<div align="center">
+<div align="center">
 
 <a href="https://github.com/Freezerfred/Freezer-MD-">
 
-<img src="https://i.ibb.co/fY77xvV1/IMG-20260814-WA0000-1.jpg" width="100%" alt="Freezer-MD Banner">
+<img src="https://i.ibb.co/fY77xvV1/IMG-20260814-WA0000-1.jpg" width="100%" alt="FREEZER-MD">
 
 </a>
 
 <br>
 
-<img src="https://readme-typing-svg.demolab.com?font=Orbitron&weight=800&size=30&duration=2500&pause=800&color=00D9FF&center=true&vCenter=true&width=700&lines=%E2%9D%84%EF%B8%8F+WELCOME+TO+FREEZER-MD;%E2%9A%A1+FAST.+POWERFUL.+MODULAR.;%F0%9F%A4%96+WHATSAPP+AUTOMATION+REDEFINED;%F0%9F%9B%A1%EF%B8%8F+PROTECT.+AUTOMATE.+CONTROL.;%E2%9D%84%EF%B8%8F+BUILT+TO+FREEZE+THE+COMPETITION." alt="Typing SVG">
-
-<br>
-
-<img src="https://img.shields.io/badge/%E2%9D%84%EF%B8%8F_FREEZER--MD-1.0.0-00D9FF?style=for-the-badge&labelColor=0d1117">
-
-<img src="https://img.shields.io/badge/NODE.JS-20%2B-brightgreen?style=for-the-badge&logo=node.js&logoColor=white">
-
-<img src="https://img.shields.io/badge/WHATSAPP-MULTI--DEVICE-25D366?style=for-the-badge&logo=whatsapp&logoColor=white">
+<img src="https://readme-typing-svg.demolab.com?font=Orbitron&weight=900&size=32&duration=2200&pause=700&color=00E5FF&center=true&vCenter=true&width=850&lines=%E2%9D%84%EF%B8%8F+WELCOME+TO+FREEZER-MD;%E2%9A%A1+WHATSAPP+AUTOMATION+REDEFINED;%F0%9F%A7%A0+SMART.+FAST.+MODULAR.;%F0%9F%9B%A1%EF%B8%8F+PROTECT.+AUTOMATE.+CONTROL.;%F0%9F%A5%B6+ENTER+THE+FREEZER+ZONE." alt="Freezer-MD Animated Header">
 
 <br><br>
 
-### ❄️ **THE NEXT GENERATION WHATSAPP BOT**
+<img src="https://img.shields.io/badge/%E2%9D%84%EF%B8%8F_FREEZER--MD-1.0.0-00E5FF?style=for-the-badge&labelColor=080B12">
+<img src="https://img.shields.io/badge/NODE.JS-20%2B-7CFF6B?style=for-the-badge&logo=node.js&logoColor=white&labelColor=080B12">
+<img src="https://img.shields.io/badge/WHATSAPP-MULTI--DEVICE-25D366?style=for-the-badge&logo=whatsapp&logoColor=white&labelColor=080B12">
 
-> ⚡ **Fast**  •  🧩 **Modular**  •  🛡️ **Secure**  •  🤖 **AI Powered**  •  🎬 **Media Ready**
+<br><br>
+
+<img src="https://img.shields.io/github/stars/Freezerfred/Freezer-MD-?style=flat-square&logo=github&label=STARS&color=00E5FF">
+<img src="https://img.shields.io/github/forks/Freezerfred/Freezer-MD-?style=flat-square&logo=github&label=FORKS&color=7C3AED">
+<img src="https://img.shields.io/github/issues/Freezerfred/Freezer-MD-?style=flat-square&logo=github&label=ISSUES&color=FFB020">
+<img src="https://img.shields.io/github/license/Freezerfred/Freezer-MD-?style=flat-square&label=LICENSE&color=25D366">
+
+<br><br>
+
+<h2>❄️ THE FREEZER EXPERIENCE</h2>
+
+<p>
+<b>Fast</b> ⚡ &nbsp;•&nbsp;
+<b>Modular</b> 🧩 &nbsp;•&nbsp;
+<b>Intelligent</b> 🧠 &nbsp;•&nbsp;
+<b>Protected</b> 🛡️ &nbsp;•&nbsp;
+<b>Powerful</b> 🚀
+</p>
 
 <br>
 
 <a href="https://github.com/Freezerfred/Freezer-MD-/fork">
-
-<img src="https://img.shields.io/badge/🍴%20FORK%20FREEZER--MD-00D9FF?style=for-the-badge">
-
+<img src="https://img.shields.io/badge/%F0%9F%8D%B4_FORK_FREEZER--MD-00E5FF?style=for-the-badge&labelColor=080B12">
 </a>
 
 <a href="https://freezersessions.onrender.com">
-
-<img src="https://img.shields.io/badge/❄️%20GET%20SESSION-7C3AED?style=for-the-badge">
-
+<img src="https://img.shields.io/badge/%E2%9D%84%EF%B8%8F_GET_SESSION-7C3AED?style=for-the-badge&labelColor=080B12">
 </a>
 
 <a href="https://whatsapp.com/channel/0029Vb87tM1D8SE7qCVjbq3U">
-
-<img src="https://img.shields.io/badge/📢%20JOIN%20CHANNEL-25D366?style=for-the-badge&logo=whatsapp&logoColor=white">
-
+<img src="https://img.shields.io/badge/%F0%9F%93%A2_JOIN_CHANNEL-25D366?style=for-the-badge&labelColor=080B12">
 </a>
 
 </div>
@@ -50,127 +55,161 @@ l<div align="center">
 
 <div align="center">
 
-## ❄️ **FREEZER-MD IS ONLINE...**
-
-<img src="https://github-readme-activity-graph.vercel.app/graph?username=Freezerfred&repo=Freezer-MD-&theme=react-dark&hide_border=true&area=true" width="100%">
+<img src="https://readme-typing-svg.demolab.com?font=Share+Tech+Mono&weight=700&size=20&duration=1800&pause=500&color=7C3AED&center=true&vCenter=true&width=700&lines=%5B+SYSTEM+ONLINE+%5D;%5B+PLUGINS+LOADED+%5D;%5B+SECURITY+ACTIVE+%5D;%5B+FREEZER+CORE+READY+%5D" alt="System Status">
 
 </div>
 
----
-
-# ⚡ `> INITIALIZING FREEZER-MD...`
-
 ```text
-╔══════════════════════════════════════════════╗
-║                                              ║
-║             ❄️  FREEZER-MD  ❄️              ║
-║                                              ║
-║       ⚡ SYSTEM        : ONLINE              ║
-║       🧠 AI ENGINE     : READY               ║
-║       🛡️ SECURITY      : ACTIVE              ║
-║       📡 CONNECTION    : STABLE              ║
-║       🧩 PLUGINS       : LOADED              ║
-║       🚀 PERFORMANCE   : MAXIMUM             ║
-║                                              ║
-║       STATUS: ❄️ FROZEN & READY             ║
-║                                              ║
-╚══════════════════════════════════════════════╝
+╭──────────────────────────────────────────────────────╮
+│                                                      │
+│              ❄️  FREEZER-MD CORE  ❄️                │
+│                                                      │
+│   ⚡ SYSTEM       ──────────────── ONLINE            │
+│   🧠 AI ENGINE    ──────────────── READY             │
+│   🛡️ SECURITY     ──────────────── ACTIVE            │
+│   📡 CONNECTION   ──────────────── STABLE            │
+│   🧩 PLUGINS      ──────────────── LOADED            │
+│   🚀 PERFORMANCE  ──────────────── MAXIMUM           │
+│                                                      │
+│             STATUS :: FROZEN & READY 🥶              │
+│                                                      │
+╰──────────────────────────────────────────────────────╯
 ```
 
-> **Freezer-MD** is not just another WhatsApp bot.
->
-> It's a **modular automation platform** designed to give your WhatsApp experience more control, intelligence, protection and personality.
+> **Freezer-MD** is a modular WhatsApp automation project built for speed, flexibility, group management, media tools, AI features and automation.
+
+> **One bot. Multiple possibilities. One Freezer. ❄️**
 
 ---
 
-# 🧊 `WHY FREEZER-MD?`
+# 🧊 `01 // WHY FREEZER-MD`
 
 <div align="center">
 
-|     ⚡ SPEED    |   🧩 PLUGINS  |   🛡️ SECURITY   |      🤖 AI     |
-| :------------: | :-----------: | :--------------: | :------------: |
-| Lightning Fast | Fully Modular | Group Protection | Smart Features |
+|    ⚡ SPEED    |   🧩 MODULAR  |   🛡️ SECURITY   |    🧠 AI    |
+| :-----------: | :-----------: | :--------------: | :---------: |
+| Fast Commands | Plugin System | Group Protection | Smart Tools |
 
-|    🎬 MEDIA    |    👥 GROUPS   |   ⚙️ CONTROL   |  🚀 DEPLOY |
-| :------------: | :------------: | :------------: | :--------: |
-| Powerful Tools | Advanced Admin | Owner Controls | Easy Setup |
+|    🎬 MEDIA    |  👥 GROUPS  |   ⚙️ CONTROL   |  🚀 DEPLOY |
+| :------------: | :---------: | :------------: | :--------: |
+| Download Tools | Admin Tools | Owner Controls | Easy Setup |
 
 </div>
 
+<br>
+
+### ⚡ Built for people who want more from WhatsApp.
+
+Freezer-MD focuses on a clean plugin architecture so features can be added, removed and improved without turning the entire project into one giant script.
+
 ---
 
-# 🔥 `FEATURES THAT HIT DIFFERENT`
-
-### 🤖 **AUTOMATION ENGINE**
+# 🤖 `02 // AUTOMATION CORE`
 
 ```text
-⚡ Auto Read
-👁️ Auto View Status
-❤️ Auto Like Status
-💬 Auto Reply
-🧠 Auto AI
-📝 Auto Bio
-⏰ Scheduled Tasks
-📡 Status Automation
+╭────────────────────────────────────────────╮
+│           🤖 AUTOMATION ENGINE             │
+├────────────────────────────────────────────┤
+│                                            │
+│  ⚡ Auto Read                              │
+│  👁️ Auto View Status                      │
+│  ❤️ Auto Like Status                      │
+│  💬 Auto Reply                             │
+│  🧠 AI Automation                          │
+│  📝 Auto Bio                               │
+│  ⏰ Scheduled Tasks                        │
+│  📡 Status Automation                      │
+│                                            │
+╰────────────────────────────────────────────╯
 ```
+
+**Automate the boring stuff.
+Keep control of the important stuff.**
 
 ---
 
-### 🛡️ **FREEZER SECURITY**
+# 🛡️ `03 // FREEZER SECURITY`
 
 ```text
-🔗 Anti-Link
-🚫 Anti-Badword
-👋 Welcome / Goodbye
-⚠️ Auto Warning
-🥶 Auto Kick
-🛡️ Group Protection
-🟢 Online Members
-🗑️ Anti-Delete
-👁️ View-Once Recovery
-📢 Group Status Protection
-👑 Admin Controls
+╭────────────────────────────────────────────╮
+│              🛡️ SECURITY CORE             │
+├────────────────────────────────────────────┤
+│                                            │
+│  🔗 Anti-Link                              │
+│  🚫 Anti-Badword                           │
+│  👋 Welcome / Goodbye                     │
+│  ⚠️ Automatic Warnings                     │
+│  🥶 Automatic Moderation                   │
+│  🛡️ Group Protection                       │
+│  🟢 Online Members                         │
+│  🗑️ Anti-Delete                            │
+│  👁️ View-Once Tools                       │
+│  📢 Group Status Protection                │
+│  👑 Admin Controls                         │
+│                                            │
+╰────────────────────────────────────────────╯
 ```
 
-> **Your group. Your rules. Freezer enforces them. ❄️**
+> ### ❄️ YOUR GROUP. YOUR RULES.
+>
+> Freezer-MD gives administrators tools to automate moderation and group management.
 
 ---
 
-### 📥 **MEDIA DOWNLOADER**
+# 📥 `04 // MEDIA DOWNLOADER`
+
+<div align="center">
+
+### 🎬 DOWNLOAD • PROCESS • SHARE
+
+</div>
 
 ```text
-▶️ YouTube
-🎵 Audio
-🎬 Video
-🎵 TikTok
-📸 Instagram
-📘 Facebook
-🔗 Direct URLs
+▶️  YouTube
+🎵  Audio
+🎬  Video
+🎵  TikTok
+📸  Instagram
+📘  Facebook
+🔗  Direct URLs
 ```
 
-> Download. Process. Share.
-> **All from WhatsApp.**
+> **Media tools designed to keep everything inside your WhatsApp workflow.**
 
 ---
 
-### 🎨 **MEDIA LAB**
+# 🎨 `05 // MEDIA LAB`
 
 ```text
-🧊 Stickers
-🖼️ Image Processing
-🎬 Video Processing
-🎞️ GIF
-😂 Memes
-💥 Brat
-☠️ Wasted
-🎯 Wanted
-🔥 Trigger
-🔗 Media → URL
+╭────────────────────────────────────────────╮
+│               🎨 MEDIA LAB                │
+├────────────────────────────────────────────┤
+│                                            │
+│  🧊 Stickers                               │
+│  🖼️ Image Processing                       │
+│  🎬 Video Processing                       │
+│  🎞️ GIF Tools                              │
+│  😂 Meme Generator                         │
+│  💥 Brat                                    │
+│  ☠️ Wasted                                  │
+│  🎯 Wanted                                  │
+│  🔥 Trigger                                 │
+│  🔗 Media → URL                            │
+│                                            │
+╰────────────────────────────────────────────╯
 ```
+
+**Turn ordinary media into Freezer content. 🥶**
 
 ---
 
-### 🧠 **AI CENTER**
+# 🧠 `06 // AI CENTER`
+
+<div align="center">
+
+<img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&size=18&duration=1800&pause=700&color=00E5FF&center=true&vCenter=true&width=600&lines=ASK.;CREATE.;TRANSLATE.;AUTOMATE.;LET+FREEZER+THINK." alt="AI Animation">
+
+</div>
 
 ```text
 🤖 AI Chat
@@ -185,56 +224,59 @@ l<div align="center">
 
 ---
 
-# 🎮 `FREEZER FUN ZONE`
+# 🎮 `07 // FREEZER FUN ZONE`
 
 ```text
-😂 MEMES
-🎲 GAMES
-🎯 RANDOM
-💬 QUOTES
-🧠 FACTS
-🎭 FUN
-🖼️ CREATIVE TOOLS
+╭────────────────────────────────────────────╮
+│              🎮 FUN ZONE                  │
+├────────────────────────────────────────────┤
+│                                            │
+│  😂 MEMES                                  │
+│  🎲 GAMES                                  │
+│  🎯 RANDOM                                 │
+│  💬 QUOTES                                 │
+│  🧠 FACTS                                  │
+│  🎭 FUN                                     │
+│  🖼️ CREATIVE TOOLS                         │
+│                                            │
+╰────────────────────────────────────────────╯
 ```
 
-**Because a group without chaos is just a meeting. 😂❄️**
+> **Because a group without chaos is just a meeting. 😂❄️**
 
 ---
 
-# 📂 `COMMAND SYSTEM`
+# 📂 `08 // COMMAND SYSTEM`
 
 <div align="center">
 
 ```text
-╭─────────────────────────────╮
-│       ❄️ FREEZER-MD         │
-├─────────────────────────────┤
-│                             │
-│  ❄️ General                 │
-│  📥 Downloaders             │
-│  🧰 Tools                   │
-│  🤖 AI                      │
-│  🎬 Media                   │
-│  🎮 Fun                     │
-│  👥 Group                   │
+╭───────────────────────────────╮
+│        ❄️ FREEZER-MD          │
+├───────────────────────────────┤
+│                               │
+│  ❄️ General                  │
+│  📥 Downloaders              │
+│  🧰 Tools                    │
+│  🤖 AI                       │
+│  🎬 Media                    │
+│  🎮 Fun                      │
+│  👥 Group                    │
 │  🛡️ Security                │
-│  📊 Status                  │
-│  📢 Channel                 │
-│  ⚙️ Admin                   │
+│  📊 Status                   │
+│  📢 Channel                  │
+│  ⚙️ Admin                    │
 │  👑 Owner                   │
-│                             │
-╰─────────────────────────────╯
+│                               │
+╰───────────────────────────────╯
 ```
 
 </div>
 
-### ⚡ Try it:
+### ⚡ Quick Commands
 
 ```text
 .menu
-```
-
-```text
 .ping
 .alive
 .uptime
@@ -245,9 +287,9 @@ l<div align="center">
 
 ---
 
-# 🧩 `PLUGIN ARCHITECTURE`
+# 🧩 `09 // PLUGIN ARCHITECTURE`
 
-Freezer-MD is built around a **clean modular plugin system**.
+Freezer-MD uses a modular plugin structure.
 
 ```text
 plugins/
@@ -266,9 +308,7 @@ plugins/
 └── 👑 owner/
 ```
 
-### Want a new command?
-
-Create a plugin.
+### Build your own command
 
 ```javascript
 const { cmd } = require('../arslan');
@@ -283,39 +323,43 @@ cmd({
 
     await m.reply(
         `❄️ *FREEZER-MD*\n\n` +
-        `Welcome to the Freezer zone! 🥶`
+        `Welcome to the Freezer Zone! 🥶`
     );
 
 });
 ```
 
-**Simple. Clean. Powerful.**
+<div align="center">
+
+### `SIMPLE • CLEAN • POWERFUL`
+
+</div>
 
 ---
 
-# 🚀 `GET FREEZER-MD RUNNING`
+# 🚀 `10 // GET FREEZER-MD RUNNING`
 
-## ① 🍴 FORK
+## `01` 🍴 FORK
 
 <a href="https://github.com/Freezerfred/Freezer-MD-/fork">
 
-<img src="https://img.shields.io/badge/🍴_FORK_REPOSITORY-00D9FF?style=for-the-badge">
+<img src="https://img.shields.io/badge/%F0%9F%8D%B4_FORK_REPOSITORY-00E5FF?style=for-the-badge&labelColor=080B12">
 
 </a>
 
 ---
 
-## ② 📱 GET SESSION
+## `02` ❄️ GENERATE SESSION
 
 <a href="https://freezersessions.onrender.com">
 
-<img src="https://img.shields.io/badge/❄️_GENERATE_SESSION-7C3AED?style=for-the-badge">
+<img src="https://img.shields.io/badge/%E2%9D%84%EF%B8%8F_GENERATE_SESSION-7C3AED?style=for-the-badge&labelColor=080B12">
 
 </a>
 
 ---
 
-## ③ 📦 INSTALL
+## `03` 📦 CLONE
 
 ```bash
 git clone https://github.com/Freezerfred/Freezer-MD-.git
@@ -327,7 +371,7 @@ npm install
 
 ---
 
-## ④ ▶️ START
+## `04` ▶️ START
 
 ```bash
 npm start
@@ -341,9 +385,9 @@ node index.js
 
 ---
 
-# ⚙️ `CONFIGURATION`
+# ⚙️ `11 // CONFIGURATION`
 
-Example:
+Example environment configuration:
 
 ```env
 SESSION=YOUR_SESSION_ID
@@ -351,120 +395,120 @@ PREFIX=.
 OWNER_NUMBER=YOUR_NUMBER
 ```
 
-### 🔐 KEEP YOUR SESSION PRIVATE
+### 🔐 KEEP YOUR CREDENTIALS PRIVATE
 
 ```text
-❌ Don't post it on GitHub
-❌ Don't send it to strangers
-❌ Don't expose .env
-❌ Don't upload authentication files
+❌ Don't publish your session
+❌ Don't expose authentication files
+❌ Don't upload .env
+❌ Don't send credentials to strangers
 
-✅ Keep credentials private
+✅ Protect your session
+✅ Use environment variables
+✅ Keep authentication files private
 ```
 
 ---
 
-# 📱 `SESSION GENERATOR`
+# ❄️ `12 // SESSION CENTER`
 
 <div align="center">
 
-### ❄️ FREEZER-MD SESSION CENTER
-
-Generate your WhatsApp session quickly and connect your bot.
+<img src="https://readme-typing-svg.demolab.com?font=Orbitron&weight=800&size=24&duration=2000&pause=700&color=7C3AED&center=true&vCenter=true&width=700&lines=%E2%9D%84%EF%B8%8F+FREEZER-MD+SESSION+CENTER;%F0%9F%94%90+GENERATE+YOUR+SESSION;%E2%9A%A1+CONNECT+YOUR+BOT" alt="Session Center">
 
 <br>
 
+Generate a WhatsApp session and connect your Freezer-MD installation.
+
+<br><br>
+
 <a href="https://freezersessions.onrender.com">
 
-<img src="https://img.shields.io/badge/🚀_OPEN_SESSION_GENERATOR-00D9FF?style=for-the-badge">
+<img src="https://img.shields.io/badge/%F0%9F%9A%80_OPEN_SESSION_GENERATOR-7C3AED?style=for-the-badge&labelColor=080B12">
 
 </a>
 
 <br><br>
 
-**freezersessions.onrender.com**
+`freezersessions.onrender.com`
 
 </div>
 
 ---
 
-# ☁️ `DEPLOYMENT`
+# ☁️ `13 // DEPLOYMENT`
 
 Freezer-MD can be adapted for:
 
 ```text
-📱 Termux
-🖥️ VPS
-☁️ Cloud Servers
-🐳 Docker
-💻 Local Development
+📱  Termux
+🖥️  VPS
+☁️  Cloud Servers
+🐳  Docker
+💻  Local Development
 ```
 
-> For production, use a stable environment and protect your credentials.
+> For production deployments, use a stable environment and protect all authentication credentials.
 
 ---
 
-# 📊 `FREEZER-MD ECOSYSTEM`
+# 📊 `14 // PROJECT ECOSYSTEM`
 
 <div align="center">
 
 <a href="https://github.com/Freezerfred/Freezer-MD-">
-<img src="https://img.shields.io/github/stars/Freezerfred/Freezer-MD-?style=for-the-badge&logo=github&label=STARS">
+<img src="https://img.shields.io/github/stars/Freezerfred/Freezer-MD-?style=for-the-badge&logo=github&label=STARS&color=00E5FF">
 </a>
 
 <a href="https://github.com/Freezerfred/Freezer-MD-/fork">
-<img src="https://img.shields.io/github/forks/Freezerfred/Freezer-MD-?style=for-the-badge&logo=github&label=FORKS">
+<img src="https://img.shields.io/github/forks/Freezerfred/Freezer-MD-?style=for-the-badge&logo=github&label=FORKS&color=7C3AED">
 </a>
 
 <a href="https://github.com/Freezerfred/Freezer-MD-/issues">
-<img src="https://img.shields.io/github/issues/Freezerfred/Freezer-MD-?style=for-the-badge&logo=github&label=ISSUES">
+<img src="https://img.shields.io/github/issues/Freezerfred/Freezer-MD-?style=for-the-badge&logo=github&label=ISSUES&color=FFB020">
 </a>
 
 </div>
 
 ---
 
-# 📢 `JOIN THE FREEZER ZONE`
+# 📢 `15 // JOIN THE FREEZER ZONE`
 
 <div align="center">
 
-### ❄️ Don't watch from the sidelines.
+<img src="https://readme-typing-svg.demolab.com?font=Orbitron&weight=800&size=22&duration=2000&pause=700&color=00E5FF&center=true&vCenter=true&width=650&lines=%E2%9D%84%EF%B8%8F+STAY+FROZEN;%F0%9F%9A%80+STAY+POWERFUL;%F0%9F%9B%A1%EF%B8%8F+STAY+PROTECTED;%F0%9F%A7%A9+BUILD+WITH+FREEZER" alt="Community Animation">
 
-**Join the community. Get updates. Discover new features.**
+<br>
+
+### ⚡ BUILD • SHARE • CONNECT • FREEZE
 
 <br>
 
 <a href="https://whatsapp.com/channel/0029Vb87tM1D8SE7qCVjbq3U">
-
-<img src="https://img.shields.io/badge/📢_WHATSAPP_CHANNEL-25D366?style=for-the-badge&logo=whatsapp&logoColor=white">
-
+<img src="https://img.shields.io/badge/%F0%9F%93%A2_WHATSAPP_CHANNEL-25D366?style=for-the-badge&logo=whatsapp&logoColor=white&labelColor=080B12">
 </a>
 
 <a href="https://t.me/freezermd1">
-
-<img src="https://img.shields.io/badge/✈️_TELEGRAM-229ED9?style=for-the-badge&logo=telegram&logoColor=white">
-
+<img src="https://img.shields.io/badge/%E2%9C%88%EF%B8%8F_TELEGRAM-229ED9?style=for-the-badge&logo=telegram&logoColor=white&labelColor=080B12">
 </a>
 
 <a href="https://github.com/Freezerfred/Freezer-MD-">
-
-<img src="https://img.shields.io/badge/💻_GITHUB-181717?style=for-the-badge&logo=github&logoColor=white">
-
+<img src="https://img.shields.io/badge/%F0%9F%92%BB_GITHUB-FFFFFF?style=for-the-badge&logo=github&logoColor=black&labelColor=080B12">
 </a>
 
 </div>
 
 ---
 
-# 🤝 `CONTRIBUTE`
+# 🤝 `16 // CONTRIBUTE`
 
-Got a crazy idea? 🧠
+Have an idea?
 
-Found a bug? 🐛
+Found a bug?
 
-Built a plugin? 🧩
+Built a plugin?
 
-**Bring it to Freezer-MD.**
+**Bring it to Freezer-MD. 🧊**
 
 ```bash
 git checkout -b feature/my-feature
@@ -480,9 +524,7 @@ Then open a Pull Request.
 
 ---
 
-# 🛡️ `SECURITY`
-
-### Protect your bot.
+# 🛡️ `17 // SECURITY`
 
 ```text
 🔐 Keep sessions private
@@ -495,7 +537,7 @@ Then open a Pull Request.
 
 ---
 
-# ⚠️ `DISCLAIMER`
+# ⚠️ `18 // DISCLAIMER`
 
 Freezer-MD is an independent community-developed project.
 
@@ -505,38 +547,4 @@ Unofficial WhatsApp automation may carry account or platform risks.
 
 Use Freezer-MD responsibly and comply with applicable laws and platform policies.
 
-The developer is not responsible for misuse, account restrictions, data loss, or other consequences resulting from use of this software.
-
----
-
-# 📜 `LICENSE`
-
-Freezer-MD is released under the **MIT License**.
-
-See [`LICENSE`](LICENSE) for details.
-
----
-
-<div align="center">
-
-<img src="https://readme-typing-svg.demolab.com?font=Orbitron&weight=800&size=25&duration=2500&pause=1000&color=00D9FF&center=true&vCenter=true&width=650&lines=%E2%9D%84%EF%B8%8F+FREEZER-MD;%F0%9F%A5%B6+STAY+FROZEN;%E2%9A%A1+STAY+POWERFUL;%F0%9F%9B%A1%EF%B8%8F+STAY+PROTECTED" alt="Freezer-MD">
-
-<br><br>
-
-# ❄️ FREEZER-MD
-
-### **FAST. POWERFUL. MODULAR.**
-
-`WhatsApp Multi-Device Automation`
-
-<br>
-
-**Built with ❤️ by Freezer**
-
-**Protected by Freezer-MD ❄️**
-
-<br>
-
-⭐ **Star • Fork • Build • Freeze**
-
-</div>
+The developer is not responsible for misuse, account restrictions, data loss, or other
