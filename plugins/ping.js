@@ -2,31 +2,18 @@ const { cmd } = require('../arslan');
 
 cmd({
     pattern: "ping",
-    name: "ping",
-    category: "General",
-    description: "Check bot latency",
-    aliases: ["p"],
-    command: /^\.?(ping|p)$/i,
+    name: 'ping',
+    category: 'General',
+    aliases: ['p', 'pong'],
+    description: 'Check bot response time',
     filename: __filename
-}, async (sock, m) => {
-    const start = process.hrtime.bigint();
+}, async (sock, m, args) => {
+    const start = Date.now();
+    const sent = await m.reply('Pinging...');
+    const latency = Date.now() - start;
 
-    const sent = await sock.sendMessage(
-        m.chat,
-        { text: "🏓 *Pinging...*" },
-        { quoted: m }
-    );
-
-    const latency = Number(process.hrtime.bigint() - start) / 1e6;
-
-    await sock.sendMessage(
-        m.chat,
-        {
-            text: `🏓 *PONG!*
-
-⚡ ${latency.toFixed(2)} ms
-🤖 *Freezer-MD • Online*`
-        },
-        { quoted: sent }
-    );
+    await sock.sendMessage(m.from, {
+        text: `🏓 Pong!\nLatency: ${latency}ms`,
+        edit: sent.key
+    });
 });
