@@ -36,7 +36,7 @@
 <img src="https://img.shields.io/badge/%F0%9F%8D%B4_FORK-00E5FF?style=for-the-badge&labelColor=070A10">
 </a>
 
-<a href="https://freezersessions.onrender.com">
+<a href="https://freezersessions2026-1.onrender.com/">
 <img src="https://img.shields.io/badge/%E2%9D%84%EF%B8%8F_SESSION_CENTER-7C3AED?style=for-the-badge&labelColor=070A10">
 </a>
 
