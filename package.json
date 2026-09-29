@@ -1,13 +1,13 @@
 {
-  "name": "Freezer",
+  "name": "freezer-md",
   "version": "1.0.0",
-  "description": "Freezer WhatsApp Bot",
+  "description": "Freezer-MD WhatsApp Bot",
   "main": "index.js",
   "type": "commonjs",
   "scripts": {
     "start": "node index.js",
-    "stop": "pm2 stop Freezer",
-    "restart": "pm2 restart Freezer",
+    "stop": "pm2 stop Freezer-MD",
+    "restart": "pm2 restart Freezer-MD",
     "bot": "node index.js"
   },
   "author": "Freezer",
@@ -16,6 +16,7 @@
   "keywords": [
     "whatsapp-bot",
     "baileys",
+    "freezer-md",
     "freezer"
   ],
   "dependencies": {
@@ -23,8 +24,8 @@
     "@hapi/boom": "^10.0.1",
     "@whiskeysockets/baileys": "^7.0.0-rc13",
     "acrcloud": "^1.4.0",
-    "axios": "^1.6.8",
     "adm-zip": "^0.5.16",
+    "axios": "^1.6.8",
     "body-parser": "*",
     "chalk": "^4.1.2",
     "dotenv": "^17.2.3",
@@ -33,20 +34,15 @@
     "gifted-btns": "^1.0.0",
     "jimp": "^1.6.1",
     "sharp": "^0.35.2",
+    "node-cache": "^5.1.2",
     "node-fetch": "^2.7.0",
-    "os": "^0.1.2",
-    "path": "*",
     "pino": "^8.17.0",
     "pino-pretty": "^13.0.0",
-    "play-dl": "^1.9.7",
     "qrcode": "^1.5.1",
     "qrcode-terminal": "^0.12.0",
-    "sqlite3": "^5.1.6",
-    "sharp": "^0.35.3",
+    "sqlite3": "^5.1.7",
     "wa-sticker-formatter": "^4.4.4",
-    "yt-search": "^2.10.4",
-    "ytdl-core": "^4.11.1",
-    "fluent-ffmpeg": "^2.1.2"
+    "yt-search": "^2.10.4"
   },
   "devDependencies": {
     "pm2": "^5.3.0"
