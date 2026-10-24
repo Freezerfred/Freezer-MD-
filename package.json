@@ -29,6 +29,7 @@
     "axios": "^1.6.8",
     "adm-zip": "^0.5.16",
     "chalk": "^4.1.2",
+    "btch-downloader": "latest",
     "dotenv": "^17.2.3",
     "gifted-btns": "^1.0.0",
     "jimp": "^1.6.1",
